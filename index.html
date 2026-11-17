@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bayazit CT-Schule</title>
+<meta name="theme-color" content="#05080d">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="CT-Schule">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#05080d;--card:#0f1620;--surf:#0b1118;--line:#1b2532;
+  --tx:#dfe6ef;--mut:#7f8b9c;
+  --gr:#1fcf8f;--rd:#f0605d;--gd:#f5c542;--bl:#4c9aff;--li:#b388ff;--or:#ff9f43;
+  --ac:var(--gr);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--tx)}
+body{font-family:Inter,system-ui,sans-serif;font-size:15.5px;line-height:1.6;-webkit-font-smoothing:antialiased;min-height:100vh}
+.mono{font-family:"JetBrains Mono",monospace}
+h1,h2,h3,.lbl{font-family:"JetBrains Mono",monospace;text-transform:uppercase;letter-spacing:.06em;font-weight:800}
+a{color:inherit}
+.wrap{max-width:1180px;margin:0 auto;padding:22px 16px 80px}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+
+/* Animation */
+.fx{opacity:0;transform:translateY(12px);animation:up .55s cubic-bezier(.2,.7,.2,1) forwards;animation-delay:calc(var(--i,0)*70ms)}
+@keyframes up{to{opacity:1;transform:none}}
+
+/* Kopf Startseite */
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.sub{font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--mut);letter-spacing:.12em;text-transform:uppercase}
+.hero h1{font-size:clamp(28px,7vw,46px);line-height:1.05;margin:6px 0 10px}
+.hero h1 span{color:var(--gr);text-shadow:0 0 24px rgba(31,207,143,.35)}
+.hero p{color:var(--mut);max-width:620px}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--gr);box-shadow:0 0 10px var(--gr);margin-right:8px;animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.25}}
+.prog{margin:18px 0 22px;background:var(--surf);border:1px solid var(--line);border-radius:16px;padding:14px 16px}
+.prog .row{display:flex;justify-content:space-between;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--mut);letter-spacing:.08em;margin-bottom:8px}
+.prog .row b{color:var(--gr)}
+.bar{height:6px;background:#141d29;border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--ac);border-radius:99px;box-shadow:0 0 10px var(--ac);transition:width .8s}
+
+/* Bento */
+.grid{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:700px){.grid{grid-template-columns:1fr 1fr}}
+@media(min-width:1000px){.grid{grid-template-columns:1fr 1fr 1fr}.wide{grid-column:span 2}}
+.tile{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px 18px 16px;min-height:178px;display:flex;flex-direction:column;cursor:pointer;transition:transform .25s,border-color .25s,box-shadow .25s;text-align:left}
+.tile::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:var(--ac);box-shadow:0 0 14px var(--ac)}
+.tile::after{content:"";position:absolute;right:-60px;top:-60px;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,var(--ac) 0%,transparent 70%);opacity:.13;pointer-events:none}
+.tile:hover,.tile:active,.tile:focus-visible{transform:translateY(-3px);border-color:var(--ac);box-shadow:0 10px 30px -12px var(--ac);outline:none}
+.tile h3{color:var(--ac);font-size:17px;padding-right:56px}
+.tile .tag{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--mut);letter-spacing:.14em;margin-bottom:6px}
+.tile p{color:var(--mut);font-size:14.5px;margin-top:8px;flex:1}
+.tile .ico{position:absolute;right:16px;top:18px;width:44px;height:44px;color:var(--ac);filter:drop-shadow(0 0 8px var(--ac))}
+.tfoot{display:flex;align-items:center;gap:12px;margin-top:14px;font-family:"JetBrains Mono",monospace;font-size:11.5px;color:var(--mut);letter-spacing:.08em}
+.tfoot .bar{flex:1;height:5px}
+.tfoot .arr{color:var(--ac);font-size:22px;line-height:1}
+.fact{background:linear-gradient(135deg,rgba(245,197,66,.08),transparent 60%),var(--card);border:1px solid var(--line);border-left:3px solid var(--gd);border-radius:16px;padding:14px 16px;margin-bottom:16px;display:flex;gap:12px;align-items:flex-start}
+.fact .lbl{color:var(--gd);font-size:11.5px}
+.fact p{font-size:14.5px;margin-top:3px}
+.fact button{margin-left:auto;font-family:"JetBrains Mono",monospace;color:var(--gd);font-size:12px;border:1px solid #3a3320;border-radius:10px;padding:5px 9px;white-space:nowrap}
+
+/* Unterseiten */
+.back{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:13px;color:var(--tx);border:1px solid var(--line);background:var(--surf);border-radius:12px;padding:8px 13px;letter-spacing:.06em;transition:border-color .2s}
+.back:hover{border-color:var(--ac)}
+.phead{margin:20px 0 18px}
+.phead h2{color:var(--ac);font-size:clamp(26px,6vw,38px);line-height:1.1;margin-top:6px;text-shadow:0 0 26px color-mix(in srgb,var(--ac) 35%,transparent)}
+.phead p{color:var(--mut);margin-top:8px;max-width:680px}
+.sec{font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--mut);letter-spacing:.16em;text-transform:uppercase;margin:26px 0 10px;display:flex;align-items:center;gap:10px}
+.sec::after{content:"";flex:1;height:1px;background:var(--line)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px;position:relative;overflow:hidden}
+.panel h3{font-size:14px;color:var(--ac);margin-bottom:4px}
+.panel .hint{color:var(--mut);font-size:13.5px;margin-bottom:12px}
+.items{display:flex;flex-direction:column;gap:10px}
+.item{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;transition:border-color .25s}
+.item.open{border-color:color-mix(in srgb,var(--ac) 55%,var(--line))}
+.ihead{display:flex;align-items:center;gap:13px;padding:13px 14px;width:100%;text-align:left}
+.num{flex:none;width:40px;height:40px;border-radius:12px;background:var(--surf);border:1px solid var(--line);display:grid;place-items:center;font-family:"JetBrains Mono",monospace;font-weight:800;font-size:13px;color:var(--ac)}
+.item.done .num{background:color-mix(in srgb,var(--gr) 14%,var(--surf));border-color:#1e5a44;color:var(--gr)}
+.ihead .tt{flex:1;min-width:0}
+.ihead b{display:block;font-weight:700;font-size:15.5px}
+.ihead small{display:block;color:var(--mut);font-size:13px;line-height:1.35;margin-top:1px}
+.chev{color:var(--mut);transition:transform .3s;font-size:18px}
+.item.open .chev{transform:rotate(90deg);color:var(--ac)}
+.ibody{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s}
+.item.open .ibody{grid-template-rows:1fr}
+.ibody>div{overflow:hidden}
+.ibody .in{padding:2px 16px 16px 16px;border-top:1px dashed var(--line);margin:0 14px;padding-left:0;padding-right:0;padding-top:14px}
+.in p{margin-bottom:10px}
+.in ul{margin:0 0 10px 18px}
+.in li{margin-bottom:4px}
+.in b{color:#fff}
+.box{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin:10px 0}
+.box .lbl{font-size:11px;margin-bottom:4px;color:var(--ac)}
+.box.g .lbl{color:var(--gd)}.box.r .lbl{color:var(--rd)}.box.gr .lbl{color:var(--gr)}.box.b .lbl{color:var(--bl)}
+.formula{font-family:"JetBrains Mono",monospace;font-size:15px;color:#fff;background:#070b11;border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:8px 0;overflow-x:auto;white-space:nowrap}
+.mark{margin-top:6px;font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:700;letter-spacing:.08em;border:1px solid var(--line);border-radius:10px;padding:8px 12px;color:var(--mut)}
+.item.done .mark{color:var(--gr);border-color:#1e5a44}
+.check{color:var(--gr);font-weight:800;margin-left:6px}
+.pill{display:inline-block;font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:700;letter-spacing:.06em;padding:3px 9px;border-radius:99px;background:#070b11;border:1px solid var(--ac);color:var(--ac);white-space:nowrap}
+.pills{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+.svgfig{width:100%;height:auto;display:block}
+canvas{display:block;width:100%}
+.ctl{display:grid;gap:12px;margin-top:12px}
+.ctl label{display:flex;justify-content:space-between;font-family:"JetBrains Mono",monospace;font-size:12px;color:var(--mut);letter-spacing:.06em;text-transform:uppercase}
+.ctl label b{color:var(--ac);text-transform:none}
+input[type=range]{width:100%;accent-color:var(--ac);height:22px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{font-family:"JetBrains Mono",monospace;font-size:12px;font-weight:700;padding:7px 11px;border-radius:10px;border:1px solid var(--line);background:var(--surf);color:var(--mut);letter-spacing:.04em}
+.seg button.on{border-color:var(--ac);color:var(--ac);box-shadow:0 0 12px -4px var(--ac)}
+.btn{font-family:"JetBrains Mono",monospace;font-weight:800;font-size:13px;letter-spacing:.06em;padding:10px 14px;border-radius:12px;border:1px solid var(--ac);color:var(--ac);background:color-mix(in srgb,var(--ac) 10%,transparent);text-transform:uppercase}
+.btn.ghost{border-color:var(--line);color:var(--mut);background:var(--surf)}
+.row2{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:760px){.row2{grid-template-columns:1fr 1fr}}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.cv{background:#070b11;border:1px solid var(--line);border-radius:12px;padding:6px;position:relative}
+.cv .lbl{position:absolute;left:10px;top:9px;font-size:10px;z-index:2}
+.cv canvas{border-radius:8px;image-rendering:pixelated}
+.row3 .cv canvas{aspect-ratio:1/1;height:auto}
+.row3 .cv .cap{display:block;text-align:center;font-family:"JetBrains Mono",monospace;font-weight:700;font-size:10.5px;letter-spacing:.08em;margin-top:6px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:12px}
+.kv div{background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.kv span{display:block;font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--mut);letter-spacing:.1em;text-transform:uppercase}
+.kv b{font-family:"JetBrains Mono",monospace;font-size:19px;color:var(--ac)}
+.num-in{width:100%;background:#070b11;border:1px solid var(--line);color:var(--tx);border-radius:10px;padding:9px 10px;font-family:"JetBrains Mono",monospace;font-size:15px}
+.num-in:focus{outline:none;border-color:var(--ac)}
+.next{margin-top:26px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+table.t{width:100%;border-collapse:collapse;font-size:14px;margin:8px 0}
+table.t th{font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--ac);text-align:left;letter-spacing:.08em;text-transform:uppercase;padding:6px 6px;border-bottom:1px solid var(--line)}
+table.t td{padding:7px 6px;border-bottom:1px dashed var(--line);vertical-align:top}
+/* Zeitstrahl */
+.tl{position:relative;padding-left:26px}
+.tl::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:linear-gradient(var(--li),var(--bl),var(--gr))}
+.tli{position:relative;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.tli::before{content:"";position:absolute;left:-23px;top:16px;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--ac);box-shadow:0 0 10px var(--ac)}
+.tli .y{font-family:"JetBrains Mono",monospace;font-weight:800;color:var(--ac);font-size:18px}
+.tli p{color:var(--mut);font-size:14.5px}
+.tli b{color:var(--tx)}
+/* Quiz */
+.qopt{display:block;width:100%;text-align:left;background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:8px;font-size:15px;transition:border-color .2s,background .2s}
+.qopt:hover{border-color:var(--ac)}
+.qopt.ok{border-color:var(--gr);background:rgba(31,207,143,.1)}
+.qopt.no{border-color:var(--rd);background:rgba(240,96,93,.1)}
+.search{width:100%;background:var(--surf);border:1px solid var(--line);border-radius:14px;padding:12px 14px;color:var(--tx);font-size:15.5px;margin-bottom:12px}
+.search:focus{outline:none;border-color:var(--ac)}
+.lex{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:8px}
+.lex b{font-family:"JetBrains Mono",monospace;color:var(--ac);text-transform:uppercase;letter-spacing:.05em;font-size:13.5px}
+.lex p{color:var(--mut);font-size:14.5px;margin-top:2px}
+.dose{display:grid;grid-template-columns:120px 1fr;gap:8px;align-items:center;margin:7px 0;font-size:13px}
+.dose .b{height:22px;border-radius:7px;background:var(--ac);opacity:.85;position:relative;transform-origin:left;animation:grow 1s cubic-bezier(.2,.7,.2,1) both}
+.dose .b span{position:absolute;left:calc(100% + 6px);top:2px;white-space:nowrap}
+@keyframes grow{from{transform:scaleX(0)}}
+.fb{margin-top:10px;padding:11px 13px;border-radius:12px;font-size:14.5px;border:1px solid var(--line);background:var(--surf)}
+footer{color:var(--mut);font-size:12px;text-align:center;margin-top:40px;font-family:"JetBrains Mono",monospace;letter-spacing:.08em}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<script>
+/* ============== Grunddaten ============== */
+const C={gr:'#1fcf8f',rd:'#f0605d',gd:'#f5c542',bl:'#4c9aff',li:'#b388ff',or:'#ff9f43'};
+const ICON={
+ grundlagen:'<rect x="3" y="8" width="18" height="8" rx="4"/><path d="M7 12h3M14 10.5l2 1.5-2 1.5M11 16l-2 5M13.5 16l1 5M16 16l3 4"/>',
+ wechsel:'<path d="M2 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/><path d="M20 5v14"/>',
+ ct:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.2"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>',
+ labor:'<path d="M12 2l9 5v10l-9 5-9-5V7z"/><path d="M12 12l9-5M12 12v10M12 12L3 7"/>',
+ industrie:'<rect x="3" y="7" width="18" height="12" rx="2"/><circle cx="8" cy="13" r="2.5"/><circle cx="16" cy="13" r="2.5"/><path d="M7 7V4h10v3"/>',
+ detektiv:'<circle cx="10" cy="10" r="6.5"/><path d="M15 15l6 6"/><circle cx="10" cy="10" r="1.6"/>',
+ artefakte:'<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.4"/>',
+ schutz:'<path d="M12 2l8 4v6c0 5-4 9-8 10-4-1-8-5-8-10V6z"/><path d="M9 12l2 2 4-4"/>',
+ geschichte:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/>',
+ quiz:'<circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.7v.5M12 17v.4"/>',
+ lexikon:'<path d="M4 4h6a3 3 0 0 1 3 3v13a2 2 0 0 0-2-2H4z"/><path d="M20 4h-4a3 3 0 0 0-3 3"/><path d="M20 4v14h-5"/>'
+};
+const ico=(k)=>'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+ICON[k]+'</svg>';
+
+let store={done:{},best:0};
+try{const s=JSON.parse(localStorage.getItem('ctschule')||'null');if(s)store=Object.assign(store,s);}catch(e){}
+function save(){try{localStorage.setItem('ctschule',JSON.stringify(store));}catch(e){}}
+
+/* ============== Inhalte ============== */
+const S={};
+
+S.grundlagen={t:'Röntgen-Grundlagen',c:'bl',tag:'MODUL 01',d:'Wie entsteht Röntgenstrahlung? Röhre, Spektrum, kV und mA – mit Live-Spektrum zum Ausprobieren.',
+items:[
+['Die Entdeckung 1895','Würzburg, ein dunkles Labor und ein leuchtender Schirm',`<p>Am <b>8. November 1895</b> bemerkte <b>Wilhelm Conrad Röntgen</b> in Würzburg, dass ein Leuchtschirm aufleuchtete, obwohl seine Kathodenstrahlröhre mit schwarzem Karton abgedeckt war. Er nannte die unbekannte Strahlung <b>„X-Strahlen“</b>.</p><p>Am 22. Dezember 1895 entstand das berühmte Bild der Hand seiner Frau <b>Anna Bertha</b> – mit Ehering. 1901 erhielt Röntgen den allerersten <b>Nobelpreis für Physik</b>.</p><div class="box g"><div class="lbl">Gut zu wissen</div>Röntgen hat seine Entdeckung bewusst nicht patentiert – sie sollte der ganzen Menschheit nützen.</div>`],
+['Was ist Röntgenstrahlung?','Licht – nur viel energiereicher',`<p>Röntgenstrahlung ist <b>elektromagnetische Strahlung</b> wie sichtbares Licht, aber mit sehr viel kürzerer Wellenlänge (ca. 10 nm bis unter 1 pm) und viel höherer Energie.</p><div class="formula">E [keV] ≈ 1,24 / λ [nm]</div><p>Sie besteht aus Photonen (Energiepaketen). Weil sie Atome <b>ionisieren</b> kann, durchdringt sie Material – und ist gleichzeitig gesundheitlich relevant.</p><div class="box b"><div class="lbl">Vergleich</div>Sichtbares Licht: ca. 2–3 eV · Röntgen in der Industrie-CT: ca. 20–450 keV – also rund 10.000- bis 100.000-mal energiereicher.</div>`],
+['Die Röntgenröhre','Kathode, Hochspannung, Anode',`<p>Eine Glühwendel (<b>Kathode</b>) gibt Elektronen ab. Die <b>Hochspannung</b> (kV) beschleunigt sie auf die <b>Anode</b> (meist Wolfram). Beim Aufprall entsteht Röntgenstrahlung.</p><ul><li>Nur ca. <b>1 %</b> der Energie wird zu Röntgenstrahlung, ca. <b>99 %</b> zu Wärme.</li><li>Deshalb braucht jede Röhre eine Kühlung.</li><li>Industrie-CT nutzt oft <b>offene Mikrofokusröhren</b> (sehr kleiner Brennfleck, Wolfram-Target austauschbar) oder geschlossene Röhren für hohe Leistung.</li></ul>`],
+['Bremsstrahlung','Das kontinuierliche Spektrum',`<p>Wenn ein Elektron im elektrischen Feld eines Atomkerns abgebremst wird, gibt es Energie als Photon ab. Weil es unterschiedlich stark abgebremst wird, entsteht ein <b>kontinuierliches Spektrum</b>.</p><div class="formula">E_max = e · U   →   225 kV ergibt max. 225 keV</div><p>Die meisten Photonen haben aber deutlich weniger Energie – der Mittelwert liegt grob bei einem Drittel bis der Hälfte von E_max (abhängig vom Filter).</p>`],
+['Charakteristische Strahlung','Die scharfen „Spitzen“ im Spektrum',`<p>Schlägt ein Elektron ein Elektron aus der innersten Schale (K-Schale) des Anodenatoms heraus, fällt ein äußeres Elektron nach – dabei entsteht ein Photon mit genau festgelegter Energie.</p><div class="box"><div class="lbl">Wolfram</div>Kα ≈ 59 keV · Kβ ≈ 67 keV · erst sichtbar ab ca. <b>69,5 kV</b> Röhrenspannung (K-Kante).</div>`],
+['kV oder mA – was macht was?','Härte vs. Menge',`<table class="t"><tr><th>Regler</th><th>Wirkung</th></tr><tr><td><b>Spannung (kV)</b></td><td>Höhere Photonenenergie → mehr Durchdringung, weniger Kontrast; außerdem mehr Intensität</td></tr><tr><td><b>Strom (mA / µA)</b></td><td>Nur mehr Photonen (helleres Bild, weniger Rauschen) – die Energie bleibt gleich</td></tr></table><div class="formula">Leistung P = U · I   (z. B. 200 kV · 0,1 mA = 20 W)</div><div class="box g"><div class="lbl">Praxis</div>Mehr Leistung = größerer Brennfleck = mehr Unschärfe. Bei Mikrofokusröhren begrenzt die Leistung daher die erreichbare Auflösung.</div>`],
+['Der Brennfleck','Warum klein so wichtig ist',`<p>Der Brennfleck ist die Fläche auf der Anode, von der die Strahlung ausgeht. Ist er groß, entsteht ein <b>Halbschatten</b> – die geometrische Unschärfe.</p><div class="formula">U_g = f · (M − 1)</div><p>Beispiel: Brennfleck f = 50 µm, Vergrößerung M = 5 → 200 µm Unschärfe am Detektor, das sind <b>40 µm im Bauteil</b>. Wer feine Poren sehen will, braucht einen kleinen Brennfleck.</p>`],
+['Vorfilter','Weiche Strahlung herausfiltern',`<p>Ein dünnes Metallblech direkt vor der Röhre (z. B. <b>Kupfer, Zinn, Aluminium</b>) schluckt die energiearmen Photonen, die das Bauteil sowieso kaum durchdringen.</p><ul><li><b>Vorteil:</b> weniger Strahlaufhärtung (Cupping), gleichmäßigere Grauwerte</li><li><b>Nachteil:</b> weniger Intensität → längere Belichtung oder mehr Rauschen</li></ul><div class="box"><div class="lbl">Probier es aus</div>Oben im Live-Spektrum siehst du, wie der Filter die linke Seite des Spektrums „abschneidet“.</div>`]
+]};
+
+S.wechsel={t:'Strahlung & Materie',c:'li',tag:'MODUL 02',d:'Warum Aluminium hell und Poren dunkel erscheinen: Schwächung, Photoeffekt, Compton und Halbwertsdicke.',
+items:[
+['Das Schwächungsgesetz','Lambert-Beer',`<p>Durchläuft Strahlung Material, wird sie exponentiell schwächer:</p><div class="formula">I = I₀ · e^(−μ · d)</div><p><b>μ</b> ist der Schwächungskoeffizient (abhängig von Material, Dichte und Energie), <b>d</b> die Dicke. Genau dieses μ rekonstruiert die CT für jedes Voxel – das ist der <b>Grauwert</b>.</p>`],
+['Photoeffekt','Das Photon wird komplett geschluckt',`<p>Das Photon gibt seine ganze Energie an ein Hüllenelektron ab und verschwindet. Dominant bei <b>niedriger Energie</b> und <b>hoher Ordnungszahl Z</b> (grob ∝ Z³/E³).</p><div class="box gr"><div class="lbl">Bedeutung</div>Der Photoeffekt liefert den meisten <b>Kontrast</b> zwischen verschiedenen Materialien.</div>`],
+['Compton-Streuung','Das Photon prallt ab',`<p>Das Photon gibt nur einen Teil seiner Energie ab und fliegt in eine andere Richtung weiter. Bei Aluminium ist Compton ab ca. <b>50 keV</b> der wichtigste Effekt.</p><div class="box r"><div class="lbl">Problem</div>Gestreute Photonen landen irgendwo auf dem Detektor → <b>Streustrahlung</b>, weniger Kontrast, verfälschte Grauwerte.</div>`],
+['Paarbildung','Erst ab 1,022 MeV',`<p>Ein sehr energiereiches Photon wandelt sich in der Nähe eines Kerns in ein Elektron und ein Positron um. Das spielt nur bei <b>Linearbeschleunigern</b> (MeV-CT für sehr große Bauteile) eine Rolle – nicht bei normalen Röhren bis 450 kV.</p>`],
+['Halbwertsdicke','Nach welcher Dicke ist die Hälfte weg?',`<div class="formula">d½ = ln 2 / μ ≈ 0,693 / μ</div><table class="t"><tr><th>Material</th><th>d½ bei 100 keV (ca.)</th></tr><tr><td>Kunststoff</td><td>~ 36 mm</td></tr><tr><td>Aluminium</td><td>~ 15 mm</td></tr><tr><td>Titan</td><td>~ 5,7 mm</td></tr><tr><td>Stahl</td><td>~ 2,4 mm</td></tr><tr><td>Kupfer</td><td>~ 1,7 mm</td></tr><tr><td>Blei</td><td>~ 0,1 mm</td></tr></table><p>Darum lassen sich Aluminium-Gussteile so gut durchstrahlen – und Stahl braucht viel mehr kV.</p>`],
+['Dichte & Ordnungszahl','Warum manches im CT fast unsichtbar ist',`<table class="t"><tr><th>Stoff</th><th>Dichte g/cm³</th><th>Im CT</th></tr><tr><td>Luft (Pore)</td><td>0,0012</td><td>schwarz</td></tr><tr><td>Silizium</td><td>2,33</td><td>fast wie Al</td></tr><tr><td>Aluminium</td><td>2,70</td><td>grau</td></tr><tr><td>Eisen</td><td>7,87</td><td>sehr hell</td></tr></table><div class="box g"><div class="lbl">Aha!</div>Silizium und Aluminium liegen so nah beieinander, dass Si-Ausscheidungen in AlSi-Legierungen kaum Kontrast haben. Auch <b>Oxidhäute</b> sind oft schwer zu sehen – sie sind sehr dünn und kaum dichter als Aluminium.</div>`]
+]};
+
+S.ct={t:'CT-Prinzip',c:'gr',tag:'MODUL 03',d:'Von vielen Röntgenbildern zum 3D-Volumen: Projektion, Sinogramm und Rückprojektion – animiert.',
+items:[
+['Von 2D zu 3D','Warum ein Röntgenbild nicht reicht',`<p>Ein normales Röntgenbild ist ein <b>Schattenbild</b>: alles, was hintereinander liegt, überlagert sich. Man sieht nicht, in welcher Tiefe eine Pore sitzt.</p><p>Die CT nimmt deshalb <b>hunderte bis tausende Projektionen</b> aus allen Richtungen auf und berechnet daraus das Innere – Schicht für Schicht bzw. als 3D-Volumen.</p>`],
+['Projektion & Sinogramm','Jeder Punkt malt eine Sinuskurve',`<p>Eine <b>Projektion</b> ist ein Röntgenbild aus einem bestimmten Winkel. Legt man die Detektorzeilen aller Winkel untereinander, entsteht das <b>Sinogramm</b>.</p><p>Ein einzelner Punkt im Objekt wandert beim Drehen auf dem Detektor hin und her – im Sinogramm entsteht eine <b>Sinuskurve</b>. Daher der Name.</p><div class="box"><div class="lbl">Mathematik</div>Das Sinogramm ist die <b>Radon-Transformation</b> des Objekts – beschrieben 1917 von Johann Radon.</div>`],
+['Einfache Rückprojektion','Alles zurück verschmieren',`<p>Jeder Messwert wird entlang seines Strahls zurück über das Bild „verschmiert“. Wo sich viele Strahlen treffen, entsteht das Objekt.</p><div class="box r"><div class="lbl">Problem</div>Das Ergebnis ist stark <b>unscharf</b> – jeder Punkt bekommt einen sternförmigen Schleier. Im CT-Labor kannst du das mit „Filter aus“ sehen.</div>`],
+['Gefilterte Rückprojektion','Der Trick mit dem Rampenfilter',`<p>Vor dem Zurückprojizieren wird jede Projektion mit einem <b>Rampenfilter</b> bearbeitet. Er verstärkt Kanten und erzeugt negative „Gegenschatten“, die den Schleier genau aufheben.</p><div class="formula">Bild = Σ Rückprojektion( Projektion ⊛ Rampenfilter )</div><p>Diese <b>FBP</b> (Filtered Back Projection) ist bis heute der Standard.</p>`],
+['Kegelstrahl & Feldkamp','So arbeitet deine Industrie-CT',`<p>Mit Flachdetektor wird ein <b>kegelförmiger Strahl</b> genutzt – mit einer Umdrehung entsteht das ganze 3D-Volumen.</p><p>Der Rekonstruktionsalgorithmus dafür ist der <b>Feldkamp-Algorithmus (FDK)</b> von Feldkamp, Davis und Kress (1984) – eine Erweiterung der gefilterten Rückprojektion auf 3D.</p>`],
+['Voxel & Grauwerte','Die Bausteine des Volumens',`<p>Ein <b>Voxel</b> ist ein 3D-Pixel. Jeder Voxel hat einen <b>Grauwert</b>, der dem Schwächungskoeffizienten μ entspricht. In der Industrie meist 16 Bit: 0–65.535.</p><p>In der Medizin werden Grauwerte in <b>Hounsfield-Einheiten</b> angegeben:</p><div class="formula">HU = 1000 · (μ − μ_Wasser) / (μ_Wasser − μ_Luft)</div><p>Luft = −1000 HU · Wasser = 0 HU · Knochen ca. +1000 HU und mehr.</p>`],
+['Iterative Rekonstruktion','Rechnen, vergleichen, verbessern',`<p>Statt einmal zurückzuprojizieren, wird ein Volumen geschätzt, daraus Projektionen simuliert, mit den Messungen verglichen und korrigiert – immer wieder (z. B. ART, SART).</p><ul><li><b>Vorteil:</b> weniger Rauschen und Artefakte, weniger Projektionen nötig</li><li><b>Nachteil:</b> deutlich mehr Rechenzeit</li></ul>`],
+['Medizin vs. Industrie','Gleiche Physik, andere Welt',`<table class="t"><tr><th></th><th>Medizin</th><th>Industrie</th></tr><tr><td>Was dreht?</td><td>Röhre + Detektor (Gantry)</td><td>Bauteil (Drehteller)</td></tr><tr><td>Spannung</td><td>ca. 70–140 kV</td><td>ca. 20–450 kV, MeV mit Linac</td></tr><tr><td>Dosis</td><td>so gering wie möglich</td><td>egal – Bauteil lebt nicht</td></tr><tr><td>Auflösung</td><td>ca. 0,3–0,6 mm</td><td>bis in den µm-Bereich</td></tr><tr><td>Scanzeit</td><td>Sekunden</td><td>Minuten bis Stunden</td></tr></table>`]
+]};
+
+S.labor={t:'CT-Labor',c:'bl',tag:'SIMULATION',d:'Überraschung: Rekonstruiere selbst einen CT-Schnitt – Winkel für Winkel, mit und ohne Filter.',tool:true,items:[]};
+
+S.industrie={t:'Industrie-CT',c:'or',tag:'MODUL 04',d:'Dein Arbeitsalltag: Geometrie-Rechner, Scan-Ablauf, Porositätsanalyse, Soll-Ist-Vergleich, Wanddicke und Normen.',
+items:[
+['Aufbau einer Industrie-CT','Röhre · Drehteller · Detektor · Kabine',`<ul><li><b>Röntgenröhre</b> – Mikrofokus (feine Details) oder Makrofokus (dicke Bauteile, hohe Leistung)</li><li><b>Manipulator mit Drehteller</b> – bewegt und dreht das Bauteil; Abstand zur Röhre bestimmt die Vergrößerung</li><li><b>Flachdetektor</b> – Szintillator wandelt Röntgen in Licht, darunter eine Pixelmatrix</li><li><b>Strahlenschutzkabine</b> – Blei/Stahl, Türkontakte, Warnleuchte</li><li><b>Rekonstruktions-PC</b> und Auswertesoftware, z. B. <b>VGStudio MAX</b></li></ul>`],
+['Vergrößerung & Voxelgröße','Die wichtigste Rechnung',`<div class="formula">M = FDD / FOD</div><div class="formula">Voxelgröße = Pixelgröße / M</div><div class="formula">Messfeld ≈ (Pixelanzahl · Pixelgröße) / M</div><p><b>FOD</b> = Abstand Fokus–Objekt, <b>FDD</b> = Abstand Fokus–Detektor. Je näher das Bauteil an der Röhre, desto feiner die Voxel – aber desto kleiner das Messfeld.</p><div class="box g"><div class="lbl">Merke</div>Ein großes Kurbelgehäuse muss ganz ins Messfeld passen → größere Voxel. Für feine Porositäten kann man einen <b>Teilbereich (ROI-Scan)</b> näher an der Röhre scannen.</div>`],
+['Ablauf eines Scans','Vom Einspannen bis zum Bericht',`<ul><li><b>1. Einspannen</b> – stabil, oft schräg gestellt (gegen Kegelstrahlartefakte), Halter aus Schaum/Kunststoff</li><li><b>2. Parameter</b> – kV, µA, Vorfilter, Belichtungszeit, Anzahl Projektionen, Mittelung</li><li><b>3. Kalibrierung</b> – Hell- und Dunkelbild (Gain/Offset) für gleichmäßige Pixel</li><li><b>4. Scan</b> – Drehung um 360°, z. B. 1.000–3.000 Projektionen</li><li><b>5. Rekonstruktion</b> – FDK, Strahlaufhärtungskorrektur</li><li><b>6. Auswertung</b> – Oberfläche, Porosität, Soll-Ist, Wanddicke</li><li><b>7. Bericht</b> – i.O./n.i.O., Bilder, Kennwerte</li></ul>`],
+['Oberflächenbestimmung','Wo hört das Aluminium auf?',`<p>Bevor gemessen werden kann, muss die Software entscheiden, wo die Grenze Material/Luft liegt.</p><ul><li><b>ISO-50</b>: Schwelle genau in der Mitte zwischen Grauwert von Luft und Material – einfach, aber global</li><li><b>Erweiterte (lokal adaptive) Oberflächenbestimmung</b>: sucht die Kante lokal neu – genauer bei Strahlaufhärtung und unterschiedlichen Wandstärken</li></ul><div class="box"><div class="lbl">Wichtig</div>Eine gute Oberfläche ist die Grundlage für jede Messung – Soll-Ist, Wanddicke und Porenvolumen.</div>`],
+['Porositäts- & Defektanalyse','Poren finden, messen, bewerten',`<p>In VGStudio MAX sucht die Defektanalyse automatisch nach Hohlräumen und Einschlüssen. Je nach Version gibt es mehrere Algorithmen (z. B. <b>VGEasyPore</b>, <b>VGDefX</b>, „Only Threshold“).</p><table class="t"><tr><th>Kennwert</th><th>Bedeutung</th></tr><tr><td>Volumen</td><td>Größe des Defekts in mm³</td></tr><tr><td>Durchmesser</td><td>meist größte Ausdehnung</td></tr><tr><td>Sphärizität</td><td>wie kugelig (1 = Kugel) → Gas oder Lunker?</td></tr><tr><td>Kompaktheit</td><td>Verhältnis zu umhüllender Kugel</td></tr><tr><td>Abstand zur Oberfläche</td><td>kritisch bei Dichtflächen und Bearbeitung</td></tr></table><div class="box g"><div class="lbl">Tipp</div>Mit <b>Prüfzonen</b> (z. B. Dichtfläche, Lagergasse) lassen sich je Bereich eigene Grenzwerte festlegen.</div>`],
+['Soll-Ist-Vergleich','Bauteil gegen CAD',`<p>Das gescannte Bauteil wird auf das CAD-Modell (Soll) ausgerichtet und die Abweichung farbig dargestellt.</p><ul><li><b>Registrierung:</b> Best-Fit, 3-2-1 oder RPS (Referenzpunktsystem)</li><li><b>Farbskala:</b> grün = in Toleranz, rot = zu viel Material, blau = zu wenig Material</li><li>Typische Fragen: Kernversatz? Verzug? Aufmaß für die Bearbeitung ausreichend?</li></ul>`],
+['Wanddickenanalyse','Wo wird es zu dünn?',`<p>Gerade bei Wassermänteln und Kanälen ist die minimale Wandstärke entscheidend.</p><ul><li><b>Strahlmethode:</b> misst von jedem Oberflächenpunkt senkrecht durch das Material bis zur Gegenseite</li><li><b>Kugelmethode:</b> größte Kugel, die an dieser Stelle ins Material passt – robuster bei Rundungen</li></ul><div class="box"><div class="lbl">Praxis</div>Ein Kernversatz zeigt sich oft als eine Seite zu dünn, die andere zu dick.</div>`],
+['Normen & Richtlinien','Was du kennen solltest',`<table class="t"><tr><th>Regelwerk</th><th>Inhalt</th></tr><tr><td>DIN EN ISO 15708</td><td>Zerstörungsfreie Prüfung – Computertomographie (Begriffe, Verfahren, Prüfung)</td></tr><tr><td>VDI/VDE 2630</td><td>CT in der dimensionellen Messtechnik</td></tr><tr><td>BDG-Richtlinie P 202</td><td>Volumendefizite von Gussteilen (Porosität bewerten)</td></tr><tr><td>DIN EN ISO 17636 / 5579</td><td>Klassische Durchstrahlungsprüfung (Film/Digital)</td></tr></table><div class="box g"><div class="lbl">Hinweis</div>Welche Fassung bei euch gilt, steht in den Prüfvorschriften bzw. Zeichnungen des Bauteils.</div>`]
+]};
+
+S.detektiv={t:'Fehler-Detektiv',c:'rd',tag:'SPIEL + KATALOG',d:'Erkenne Gasporen, Lunker, Einschlüsse und Kernbruch in simulierten CT-Schnitten – wie bei der Arbeit.',
+items:[
+['Gasporosität','Rund, glatt, oft einzeln',`<p>Entsteht durch Gas – vor allem <b>Wasserstoff</b>, eingeschlossene Luft oder verdampftes Trennmittel.</p><ul><li>Form: <b>rund bis oval</b>, glatte Wände</li><li>Hohe <b>Sphärizität</b> in der Defektanalyse</li><li>Oft verteilt oder nahe der Oberfläche</li></ul>`],
+['Schwindungslunker','Zerklüftet, schwammartig',`<p>Beim Erstarren schrumpft Aluminium. Fehlt Nachspeisung, entstehen Hohlräume an den Stellen, die <b>zuletzt erstarren</b> – an Materialanhäufungen („Hot Spots“).</p><ul><li>Form: <b>verästelt, dendritisch, schwammig</b></li><li>Niedrige Sphärizität</li><li>Abhilfe in der Gießerei: Speiser, Kühlung, Wanddickenübergänge</li></ul>`],
+['Einschlüsse','Hell oder kaum sichtbar',`<ul><li><b>Dichte Fremdkörper</b> (z. B. Eisen, Schlichtereste): deutlich <b>heller</b> als Aluminium</li><li><b>Oxidhäute</b>: sehr dünn, kaum Kontrast – oft nur durch begleitende Poren erkennbar</li><li><b>Sandeinschlüsse</b> (vom Kern): etwas dunkler als Aluminium</li></ul>`],
+['Kernbruch & Kernversatz','Wenn der Sandkern versagt',`<p>Zylinderköpfe und Kurbelgehäuse haben Kanäle aus <b>Sandkernen</b> (z. B. Wassermantel, Ölkanäle).</p><ul><li><b>Kernbruch:</b> der Kern bricht, Metall fließt in den Kanal → <b>Materialbrücke</b> oder Verstopfung</li><li><b>Kernversatz:</b> Kern sitzt verschoben → eine Wand zu dünn</li><li>Nachweis: Schnittbilder, Soll-Ist-Vergleich, Wanddickenanalyse</li></ul>`],
+['Kaltlauf','Zwei Fronten, die nicht verschmelzen',`<p>Zwei Schmelzefronten treffen zu kalt aufeinander und verbinden sich nicht richtig. Im CT oft nur als <b>feiner Spalt oder Linie</b> sichtbar – braucht gute Auflösung.</p>`],
+['Risse (Warmrisse)','Feine, scharfe Linien',`<p>Entstehen beim Erstarren durch Spannungen, oft an Übergängen und Kerben. Im CT sehr feine, scharfkantige Linien – oft an der Grenze der Auflösung.</p><div class="box r"><div class="lbl">Grenze</div>Defekte kleiner als ca. <b>2–3 Voxel</b> sind nicht sicher erkennbar (Teilvolumeneffekt).</div>`]
+]};
+
+S.artefakte={t:'Artefakte',c:'rd',tag:'MODUL 05',d:'Was im Bild ist, aber nicht im Bauteil: Cupping, Ringe, Streifen, Kegelstrahl – und was dagegen hilft.',
+items:[
+['Strahlaufhärtung (Cupping)','Die Mitte wird dunkler',`ART:cup<p>Weiche Photonen werden zuerst geschluckt – das Spektrum wird beim Durchgang „härter“. Dicke Bereiche erscheinen dadurch <b>zu durchlässig</b> → in der Mitte dunkler, Ränder heller.</p><div class="box gr"><div class="lbl">Gegenmittel</div>Vorfilter (Cu/Sn) · Strahlaufhärtungskorrektur in der Rekonstruktion · lokal adaptive Oberflächenbestimmung</div>`],
+['Streifenartefakte','Dunkle Balken zwischen dichten Bereichen',`ART:streak<p>Entstehen bei <b>sehr langen Durchstrahlungslängen</b> oder dichten Einsätzen (z. B. Stahlbuchsen in Aluminium): Zu wenig Photonen kommen an, die Messwerte sind fehlerhaft.</p><div class="box gr"><div class="lbl">Gegenmittel</div>Höhere kV · Bauteil anders orientieren · stärkerer Filter · Metallartefaktreduktion (MAR)</div>`],
+['Ringartefakte','Kreise um die Drehachse',`ART:ring<p>Ein <b>defekter oder schlecht kalibrierter Detektorpixel</b> liefert in jeder Projektion denselben Fehler → in der Rekonstruktion entsteht ein Kreis um die Drehachse.</p><div class="box gr"><div class="lbl">Gegenmittel</div>Neue Hell-/Dunkelkalibrierung · Defektpixelkorrektur · Detektorverschiebung während des Scans · Ringartefaktkorrektur</div>`],
+['Kegelstrahlartefakte','Probleme weit weg von der Mittelebene',`ART:cone<p>Beim Kegelstrahl ist nur die mittlere Ebene mathematisch vollständig erfasst. Flächen <b>senkrecht zur Drehachse</b>, weit oben oder unten, werden verwaschen.</p><div class="box gr"><div class="lbl">Gegenmittel</div>Bauteil <b>schräg</b> stellen · wichtige Bereiche in die Mittelebene · Helix-CT</div>`],
+['Bewegungsartefakte','Verdoppelte oder unscharfe Kanten',`ART:motion<p>Wackelt das Bauteil oder verschiebt sich der Brennfleck durch Erwärmung, passen die Projektionen nicht zusammen.</p><div class="box gr"><div class="lbl">Gegenmittel</div>Feste Einspannung · Röhre vorher aufwärmen · Driftkorrektur · Raumtemperatur stabil halten</div>`],
+['Streustrahlung','Grauer Schleier, weniger Kontrast',`ART:scatter<p>Compton-gestreute Photonen treffen den Detektor an falschen Stellen. Besonders stark bei großen, massigen Bauteilen.</p><div class="box gr"><div class="lbl">Gegenmittel</div>Kollimation (Strahl eng begrenzen) · größerer Abstand Bauteil–Detektor · Streustrahlkorrektur</div>`],
+['Rauschen','Körniges Bild',`ART:noise<p>Zu wenige Photonen pro Pixel → statistische Schwankung. Kleine Poren gehen im Rauschen unter.</p><div class="box gr"><div class="lbl">Gegenmittel</div>Längere Belichtung · Mittelung mehrerer Bilder · mehr Projektionen · höherer Strom (Brennfleck beachten!)</div>`],
+['Teilvolumeneffekt','Wenn ein Voxel halb voll ist',`ART:pve<p>Liegt eine Kante mitten in einem Voxel, bekommt er einen <b>Mischgrauwert</b>. Kleine Poren erscheinen dadurch grau statt schwarz – und kleiner oder gar nicht.</p><div class="box r"><div class="lbl">Faustregel</div>Sicher erkennbar ab ca. 2–3 Voxel Durchmesser; für zuverlässige Größenmessung eher mehr.</div>`]
+]};
+
+S.schutz={t:'Strahlenschutz',c:'gd',tag:'MODUL 06',d:'Gray, Sievert, die 3 A und das Abstandsquadratgesetz – mit Dosisvergleich und Rechner.',
+items:[
+['Die Einheiten','Gray, Sievert, Becquerel',`<table class="t"><tr><th>Größe</th><th>Einheit</th><th>Bedeutung</th></tr><tr><td>Energiedosis</td><td>Gray (Gy)</td><td>Energie pro kg Material (J/kg)</td></tr><tr><td>Effektive Dosis</td><td>Sievert (Sv)</td><td>biologische Wirkung auf den Menschen</td></tr><tr><td>Dosisleistung</td><td>µSv/h</td><td>Dosis pro Zeit – das zeigt ein Messgerät an</td></tr><tr><td>Aktivität</td><td>Becquerel (Bq)</td><td>Zerfälle pro Sekunde – nur bei radioaktiven Stoffen</td></tr></table>`],
+['Die 3 A','Abstand · Abschirmung · Aufenthaltsdauer',`<ul><li><b>Abstand:</b> doppelter Abstand = nur noch ein Viertel der Dosis</li><li><b>Abschirmung:</b> Blei, Stahl, Beton zwischen Quelle und Mensch</li><li><b>Aufenthaltsdauer:</b> halbe Zeit = halbe Dosis</li></ul><p>Manchmal wird noch ein viertes A genannt: <b>Aktivität</b> (bzw. Leistung) so gering wie nötig.</p>`],
+['Abstandsquadratgesetz','Warum Abstand so viel bringt',`<div class="formula">D₂ = D₁ · (r₁ / r₂)²</div><p>Die Strahlung verteilt sich auf eine immer größere Kugelfläche. Bei 3-fachem Abstand bleibt nur 1/9 übrig. Probier es oben im Rechner aus.</p>`],
+['Röhre aus = Strahlung aus','Der große Unterschied zu radioaktiven Quellen',`<p>Eine Röntgenröhre erzeugt Strahlung <b>nur, solange Hochspannung anliegt</b>. Ausgeschaltet strahlt sie nicht, und das Bauteil wird durch Röntgenstrahlung auch <b>nicht radioaktiv</b>.</p><div class="box g"><div class="lbl">Sicherheit</div>Türkontakte (Interlocks) schalten die Hochspannung beim Öffnen ab. Warnleuchten zeigen „Strahlung ein“. Sicherheitseinrichtungen niemals überbrücken!</div>`],
+['Gesetz & Grenzwerte','StrlSchG und StrlSchV',`<ul><li><b>Strahlenschutzgesetz (StrlSchG)</b> und <b>Strahlenschutzverordnung (StrlSchV)</b> regeln den Betrieb</li><li>Grenzwert <b>Bevölkerung:</b> 1 mSv pro Jahr (zusätzlich zur natürlichen Strahlung)</li><li>Grenzwert <b>beruflich exponierte Personen:</b> 20 mSv pro Jahr</li><li>Ein <b>Strahlenschutzbeauftragter</b> ist verantwortlich; Unterweisung mindestens jährlich</li><li>Vollschutzgeräte und Kabinen müssen außen sehr niedrige Ortsdosisleistungen einhalten</li></ul>`],
+['Biologische Wirkung','Deterministisch und stochastisch',`<ul><li><b>Deterministische Wirkung:</b> erst ab einer Schwellendosis (hohe Dosen, z. B. Hautrötung)</li><li><b>Stochastische Wirkung:</b> keine Schwelle angenommen – das Risiko (z. B. Krebs) steigt mit der Dosis. Deshalb gilt: <b>so wenig wie vernünftigerweise möglich</b> (ALARA)</li></ul>`]
+]};
+
+S.geschichte={t:'Zeitreise',c:'li',tag:'GESCHICHTE',d:'Von Röntgens Laborentdeckung bis zur photonenzählenden CT – die wichtigsten Meilensteine.',tool:true,items:[]};
+S.quiz={t:'Quiz',c:'gr',tag:'TESTEN',d:'10 zufällige Fragen aus allen Bereichen – mit Erklärung nach jeder Antwort.',tool:true,items:[]};
+S.lexikon={t:'Lexikon',c:'or',tag:'NACHSCHLAGEN',d:'Alle Fachbegriffe von A bis Z – mit Suche.',tool:true,items:[]};
+
+const ORDER=['grundlagen','wechsel','ct','labor','industrie','detektiv','artefakte','schutz','geschichte','quiz','lexikon'];
+const WIDE={labor:1,detektiv:1};
+
+const FACTS=[
+'Das erste Röntgenbild eines Menschen zeigt die Hand von Anna Bertha Röntgen – mit Ehering, aufgenommen am 22. Dezember 1895.',
+'Die Mathematik hinter der CT (Radon-Transformation) stammt von 1917 – 54 Jahre vor dem ersten CT-Scan eines Patienten.',
+'Godfrey Hounsfield entwickelte den ersten CT bei EMI – der Plattenfirma der Beatles.',
+'Der erste Laborprototyp von Hounsfield brauchte für einen einzigen Scan rund 9 Tage.',
+'Rund 99 % der Energie in einer Röntgenröhre werden zu Wärme – nur etwa 1 % wird Röntgenstrahlung.',
+'Silizium (2,33 g/cm³) und Aluminium (2,70 g/cm³) sehen im CT fast gleich aus.',
+'Röntgen hat seine Entdeckung nie patentieren lassen.',
+'Für sehr große Gussteile gibt es CT-Anlagen mit Linearbeschleunigern im MeV-Bereich.',
+'Ein Bauteil wird durch Röntgenstrahlung nicht radioaktiv – egal wie lange es gescannt wird.'
+];
+
+/* ============== Router ============== */
+let runId=0;
+const app=document.getElementById('app');
+function go(h){location.hash=h?h:'start';}
+window.addEventListener('hashchange',render);
+function setAc(c){document.documentElement.style.setProperty('--ac',C[c]||C.gr);}
+
+function progressOf(id){const s=S[id];if(!s.items.length)return null;let d=0;s.items.forEach((_,i)=>{if(store.done[id+'-'+i])d++});return [d,s.items.length];}
+function totalProgress(){let d=0,n=0;ORDER.forEach(id=>{const p=progressOf(id);if(p){d+=p[0];n+=p[1];}});return [d,n];}
+
+function render(){
+  runId++;
+  const h=(location.hash||'').replace('#','');
+  window.scrollTo(0,0);
+  if(S[h]) page(h); else home();
+}
+
+/* ============== Startseite ============== */
+function home(){
+  setAc('gr');
+  const [d,n]=totalProgress();const pct=Math.round(d/n*100);
+  let fi=Math.floor(Math.random()*FACTS.length);
+  let html=`<div class="hero fx"><div class="top"><div class="sub"><span class="dot"></span>Lern-Terminal · Röntgen &amp; CT</div><div class="sub">${ORDER.length} BEREICHE</div></div>
+  <h1>Bayazit <span>CT-Schule</span></h1><p>Alles über Röntgentechnik und Computertomographie – von der Röhre bis zur Porositätsanalyse. Mit Animationen, Rechnern, Simulation und Quiz.</p></div>
+  <div class="prog fx" style="--i:1"><div class="row"><span>LERNFORTSCHRITT</span><span><b>${d}</b> / ${n} LERNKARTEN · ${pct} %</span></div><div class="bar"><i style="width:${pct}%"></i></div></div>
+  <div class="fact fx" style="--i:2"><div style="flex:1"><div class="lbl">⚡ Wusstest du?</div><p id="fact">${FACTS[fi]}</p></div><button id="nf">NÄCHSTE ›</button></div>
+  <div class="grid">`;
+  ORDER.forEach((id,k)=>{
+    const s=S[id];const p=progressOf(id);
+    let foot;
+    if(p){foot=`<span>${p[0]}/${p[1]}${p[0]===p[1]?' <span class="check">✓</span>':''}</span><div class="bar"><i style="width:${p[0]/p[1]*100}%"></i></div>`;}
+    else if(id==='quiz'){foot=`<span>BESTWERT ${store.best}/10</span><div class="bar"><i style="width:${store.best*10}%"></i></div>`;}
+    else if(id==='lexikon'){foot=`<span>${LEX.length} BEGRIFFE</span><div class="bar"><i style="width:100%"></i></div>`;}
+    else if(id==='geschichte'){foot=`<span>${TL.length} MEILENSTEINE</span><div class="bar"><i style="width:100%"></i></div>`;}
+    else foot=`<span>INTERAKTIV</span><div class="bar"><i style="width:100%"></i></div>`;
+    if(id==='detektiv'){foot=`<span>${p[0]}/${p[1]} · SPIEL</span><div class="bar"><i style="width:${p[0]/p[1]*100}%"></i></div>`;}
+    html+=`<button class="tile fx ${WIDE[id]?'wide':''}" style="--i:${k+3};--ac:${C[s.c]}" onclick="go('${id}')">${ico(id)}<div class="tag">${s.tag}</div><h3>${s.t}</h3><p>${s.d}</p><div class="tfoot">${foot}<span class="arr">›</span></div></button>`;
+  });
+  html+=`</div><footer>BAYAZIT CT-SCHULE · LERNSTAND WIRD NUR IN DIESEM BROWSER GESPEICHERT</footer>`;
+  app.innerHTML=html;
+  document.getElementById('nf').onclick=()=>{fi=(fi+1)%FACTS.length;const f=document.getElementById('fact');f.style.opacity=0;setTimeout(()=>{f.textContent=FACTS[fi];f.style.opacity=1},200);};
+  document.getElementById('fact').style.transition='opacity .2s';
+}
+
+/* ============== Unterseite ============== */
+function page(id){
+  const s=S[id];setAc(s.c);
+  const p=progressOf(id);
+  let meta=p?`${p[1]} LERNKARTEN · ${p[0]} ERLEDIGT`:s.tag;
+  let html=`<button class="back fx" onclick="go('')">‹ ZURÜCK</button>
+  <div class="phead fx" style="--i:1"><div class="sub" id="meta">${meta}</div><h2>${s.t}</h2><p>${s.d}</p></div>`;
+  html+=`<div id="extra"></div>`;
+  if(s.items.length){
+    html+=`<div class="sec fx" style="--i:3">Lernkarten</div><div class="items">`;
+    s.items.forEach((it,i)=>{
+      const key=id+'-'+i;const done=store.done[key];
+      let body=it[2];
+      body=body.replace(/ART:(\w+)/,(m,a)=>artSvg(a));
+      html+=`<div class="item fx ${done?'done':''}" style="--i:${i+4}" data-k="${key}">
+       <button class="ihead"><span class="num">${done?'✓':String(i+1).padStart(2,'0')}</span><span class="tt"><b>${it[0]}</b><small>${it[1]}</small></span><span class="chev">›</span></button>
+       <div class="ibody"><div><div class="in">${body}<button class="mark">${done?'✓ GELERNT':'ALS GELERNT MARKIEREN'}</button></div></div></div></div>`;
+    });
+    html+=`</div>`;
+  }
+  const idx=ORDER.indexOf(id);const nx=ORDER[(idx+1)%ORDER.length];
+  html+=`<div class="next"><button class="btn ghost" onclick="go('')">‹ Übersicht</button><button class="btn" style="--ac:${C[S[nx].c]}" onclick="go('${nx}')">Weiter: ${S[nx].t} ›</button></div>`;
+  app.innerHTML=html;
+  app.querySelectorAll('.item').forEach(el=>{
+    el.querySelector('.ihead').onclick=()=>el.classList.toggle('open');
+    el.querySelector('.mark').onclick=()=>{
+      const k=el.dataset.k;store.done[k]=!store.done[k];save();
+      el.classList.toggle('done',!!store.done[k]);
+      el.querySelector('.num').textContent=store.done[k]?'✓':String(+k.split('-')[1]+1).padStart(2,'0');
+      el.querySelector('.mark').textContent=store.done[k]?'✓ GELERNT':'ALS GELERNT MARKIEREN';
+      const q=progressOf(id);document.getElementById('meta').textContent=`${q[1]} LERNKARTEN · ${q[0]} ERLEDIGT`;
+    };
+  });
+  const ex=document.getElementById('extra');
+  if(EXTRA[id]) EXTRA[id](ex);
+}
+
+/* ============== Hilfen ============== */
+function cvs(c,h){const dpr=Math.min(window.devicePixelRatio||1,2);const w=c.clientWidth;c.width=w*dpr;c.height=h*dpr;c.style.height=h+'px';const x=c.getContext('2d');x.setTransform(dpr,0,0,dpr,0,0);return [x,w,h];}
+function pillC(x,t,px,py,col,align){x.font='700 11px "JetBrains Mono",monospace';const w=x.measureText(t).width+14;let lx=align==='r'?px-w:align==='c'?px-w/2:px;x.fillStyle='#070b11';x.strokeStyle=col;x.lineWidth=1;rr(x,lx,py-10,w,20,10);x.fill();x.stroke();x.fillStyle=col;x.textBaseline='middle';x.fillText(t,lx+7,py+.5);}
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();}
+function pillS(x,y,t,col,anchor){const w=t.length*7.2+14;const lx=anchor==='e'?x-w:anchor==='m'?x-w/2:x;return `<g><rect x="${lx}" y="${y-10}" width="${w}" height="20" rx="10" fill="#070b11" stroke="${col}"/><text x="${lx+w/2}" y="${y+4}" fill="${col}" font-family="JetBrains Mono,monospace" font-size="11" font-weight="700" text-anchor="middle">${t}</text></g>`;}
+const fmt=(v,d=1)=>v.toLocaleString('de-DE',{minimumFractionDigits:d,maximumFractionDigits:d});
+function gauss(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+function grid(x,l,t,w,h,nx,ny){x.strokeStyle='#1b2532';x.setLineDash([3,4]);x.lineWidth=1;for(let i=0;i<=nx;i++){const X=l+w*i/nx;x.beginPath();x.moveTo(X,t);x.lineTo(X,t+h);x.stroke();}for(let j=0;j<=ny;j++){const Y=t+h*j/ny;x.beginPath();x.moveTo(l,Y);x.lineTo(l+w,Y);x.stroke();}x.setLineDash([]);}
+
+/* ============== Artefakt-Bilder ============== */
+function artSvg(a){
+  const g=(inner)=>`<svg class="svgfig" viewBox="0 0 320 130" style="max-width:420px;margin:0 0 12px;background:#070b11;border:1px solid #1b2532;border-radius:12px">${inner}</svg>`;
+  const disc=(fill)=>`<circle cx="80" cy="65" r="48" fill="${fill}"/>`;
+  switch(a){
+  case 'cup':return g(`<defs><radialGradient id="cg"><stop offset="0" stop-color="#5d6672"/><stop offset=".75" stop-color="#9aa4b1"/><stop offset="1" stop-color="#d8dee6"/></radialGradient></defs>${disc('url(#cg)')}<line x1="32" y1="65" x2="128" y2="65" stroke="${C.rd}" stroke-dasharray="4 3"/><path d="M175 30 Q 205 30 215 70 Q 240 100 265 70 Q 275 30 305 30" fill="none" stroke="${C.rd}" stroke-width="2.5" style="filter:drop-shadow(0 0 4px ${C.rd})"/><line x1="175" y1="30" x2="305" y2="30" stroke="${C.gr}" stroke-dasharray="4 3"/>${pillS(240,115,'PROFIL: CUPPING',C.rd,'m')}${pillS(240,16,'SOLL',C.gr,'m')}`);
+  case 'streak':return g(`${disc('#9aa4b1')}<circle cx="60" cy="55" r="9" fill="#f2f5f8"/><circle cx="102" cy="78" r="9" fill="#f2f5f8"/><path d="M60 55 L102 78" stroke="#2a313a" stroke-width="7"/><path d="M40 30 L120 100 M30 60 L130 70" stroke="#3a424d" stroke-width="2" opacity=".7"/>${pillS(170,40,'STAHLEINSÄTZE',C.gr,'s')}${pillS(170,80,'DUNKLER STREIFEN',C.rd,'s')}`);
+  case 'ring':return g(`${disc('#9aa4b1')}<circle cx="80" cy="65" r="14" fill="none" stroke="#e8edf3" stroke-width="1.5"/><circle cx="80" cy="65" r="27" fill="none" stroke="#4b535e" stroke-width="1.5"/><circle cx="80" cy="65" r="36" fill="none" stroke="#e8edf3" stroke-width="1"/><circle cx="80" cy="65" r="2" fill="${C.gd}"/>${pillS(170,45,'RINGE UM DREHACHSE',C.rd,'s')}${pillS(170,85,'DREHACHSE',C.gd,'s')}`);
+  case 'cone':return g(`<path d="M20 65 L130 15 L130 115 Z" fill="${C.bl}" opacity=".12" stroke="${C.bl}" stroke-dasharray="4 3"/><circle cx="20" cy="65" r="4" fill="${C.gd}"/><rect x="62" y="30" width="38" height="70" rx="3" fill="#9aa4b1"/><line x1="20" y1="65" x2="130" y2="65" stroke="${C.gr}" stroke-width="1.5" style="filter:drop-shadow(0 0 3px ${C.gr})"/><rect x="62" y="30" width="38" height="8" fill="${C.rd}" opacity=".6"/><rect x="62" y="92" width="38" height="8" fill="${C.rd}" opacity=".6"/>${pillS(150,65,'MITTELEBENE = OK',C.gr,'s')}${pillS(150,30,'RAND = VERWASCHEN',C.rd,'s')}`);
+  case 'motion':return g(`<rect x="40" y="25" width="70" height="80" rx="8" fill="none" stroke="#9aa4b1" stroke-width="3"/><rect x="47" y="29" width="70" height="80" rx="8" fill="none" stroke="#9aa4b1" stroke-width="2" opacity=".45"/>${pillS(150,50,'DOPPELTE KANTE',C.rd,'s')}${pillS(150,85,'BAUTEIL HAT GEWACKELT',C.mut||'#7f8b9c','s')}`);
+  case 'scatter':return g(`<rect x="10" y="20" width="140" height="90" fill="#2b323c"/>${disc('#7b8492')}<circle cx="80" cy="65" r="14" fill="#3b434e"/><rect x="170" y="20" width="140" height="90" fill="#070b11"/><circle cx="240" cy="65" r="48" fill="#b7c0cc"/><circle cx="240" cy="65" r="14" fill="#070b11"/>${pillS(80,120,'MIT STREUUNG',C.rd,'m')}${pillS(240,120,'OHNE',C.gr,'m')}`);
+  case 'noise':{let r='';for(let i=0;i<500;i++){const ang=Math.random()*6.28,rad=Math.sqrt(Math.random())*46;const v=150+Math.floor(gauss()*45);r+=`<rect x="${(80+Math.cos(ang)*rad).toFixed(1)}" y="${(65+Math.sin(ang)*rad).toFixed(1)}" width="2.2" height="2.2" fill="rgb(${v},${v+6},${v+14})"/>`;}return g(`<circle cx="80" cy="65" r="48" fill="#7b8492"/>${r}<circle cx="100" cy="55" r="4" fill="#3b434e" opacity=".7"/>${pillS(150,50,'KLEINE PORE?',C.gd,'s')}${pillS(150,85,'GEHT IM RAUSCHEN UNTER',C.rd,'s')}`);}
+  case 'pve':{let r='';for(let i=0;i<8;i++)for(let j=0;j<8;j++){const cx=i-3.5,cy=j-3.5;const d=Math.hypot(cx,cy);const v=d<1.6?40:d<2.3?110:180;r+=`<rect x="${30+i*13}" y="${13+j*13}" width="12" height="12" fill="rgb(${v},${v+6},${v+14})"/>`;}return g(`${r}<circle cx="82" cy="65" r="24" fill="none" stroke="${C.gd}" stroke-dasharray="3 3"/>${pillS(160,45,'ECHTE PORE',C.gd,'s')}${pillS(160,85,'RANDVOXEL = GRAU',C.rd,'s')}`);}
+  }
+  return '';
+}
+
+/* ============== Interaktive Teile ============== */
+const EXTRA={};
+
+/* ---- Grundlagen: Röhre + Spektrum ---- */
+EXTRA.grundlagen=(ex)=>{
+  ex.innerHTML=`<div class="sec fx" style="--i:2">Animation · Röntgenröhre</div>
+  <div class="panel fx" style="--i:2"><svg class="svgfig" viewBox="0 0 360 230">
+   <defs><filter id="gl"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+   <linearGradient id="glass" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#1a2533"/><stop offset="1" stop-color="#0c131c"/></linearGradient></defs>
+   <rect x="40" y="40" width="280" height="90" rx="45" fill="url(#glass)" stroke="#2a3a4e" stroke-width="2"/>
+   <rect x="58" y="70" width="34" height="30" rx="6" fill="#1b2532" stroke="${C.bl}"/>
+   <path d="M66 85 q4 -8 8 0 t8 0" stroke="${C.or}" stroke-width="2.5" fill="none" filter="url(#gl)"><animate attributeName="stroke" values="${C.or};${C.gd};${C.or}" dur="1.2s" repeatCount="indefinite"/></path>
+   <path d="M250 60 L290 60 L290 110 L262 110 Z" fill="#3a4554" stroke="#9aa4b1"/>
+   <path d="M250 60 L262 110" stroke="${C.gd}" stroke-width="3" filter="url(#gl)"/>
+   <line x1="92" y1="85" x2="254" y2="85" stroke="${C.bl}" stroke-dasharray="3 5" opacity=".5"/>
+   ${[0,0.25,0.5,0.75].map(d=>`<circle r="3" fill="${C.bl}" filter="url(#gl)"><animate attributeName="cx" values="94;254" dur="1s" begin="${d}s" repeatCount="indefinite"/><animate attributeName="cy" values="85;85" dur="1s" repeatCount="indefinite"/><animate attributeName="opacity" values="0;1;1;0" dur="1s" begin="${d}s" repeatCount="indefinite"/></circle>`).join('')}
+   ${[-22,-8,6,20].map((a,i)=>`<path d="M256 88 l${-8+a*.6} 105" stroke="${C.li}" stroke-width="2" fill="none" stroke-dasharray="6 6" filter="url(#gl)" opacity=".9"><animate attributeName="stroke-dashoffset" values="24;0" dur=".6s" repeatCount="indefinite" begin="${i*.1}s"/></path>`).join('')}
+   <rect x="215" y="195" width="80" height="10" rx="3" fill="#1b2532" stroke="${C.gr}"/>
+   ${pillS(75,24,'KATHODE (−)',C.bl,'m')}${pillS(280,24,'ANODE (+) WOLFRAM',C.gd,'m')}
+   ${pillS(172,150,'ELEKTRONEN',C.bl,'m')}${pillS(140,172,'RÖNTGENSTRAHLUNG',C.li,'m')}${pillS(310,215,'BAUTEIL',C.gr,'m')}
+  </svg><div class="hint" style="margin:6px 0 0">Die Glühwendel gibt Elektronen ab, die Hochspannung beschleunigt sie zur Anode. Beim Aufprall entsteht Röntgenstrahlung – und viel Wärme.</div></div>
+  <div class="sec fx" style="--i:3">Live · Röntgenspektrum</div>
+  <div class="panel fx" style="--i:3"><h3>Spektrum einer Wolfram-Röhre</h3><div class="hint">Verändere Spannung, Strom und Vorfilter und beobachte das Spektrum (vereinfachtes Modell).</div>
+   <canvas id="spc"></canvas><div class="pills" id="spp"></div>
+   <div class="ctl"><div><label>Spannung <b id="kvv"></b></label><input type="range" id="kv" min="40" max="225" value="160"></div>
+   <div><label>Strom <b id="mav"></b></label><input type="range" id="ma" min="1" max="10" value="5"></div>
+   <div><label>Vorfilter</label><div class="seg" id="flt"><button data-v="0" class="on">KEINER</button><button data-v="0.05">0,5 MM CU</button><button data-v="0.1">1 MM CU</button><button data-v="0.2">2 MM CU</button></div></div></div></div>`;
+  const c=document.getElementById('spc');let F=0;
+  function draw(){
+    const kv=+document.getElementById('kv').value,ma=+document.getElementById('ma').value/10;
+    document.getElementById('kvv').textContent=kv+' kV';document.getElementById('mav').textContent=fmt(ma,1)+' mA';
+    const [x,w,h]=cvs(c,230);const L=38,R=10,T=14,B=30,W=w-L-R,H=h-T-B;
+    x.clearRect(0,0,w,h);grid(x,L,T,W,H,9,4);
+    const Emax=225;const pts=[];let sum=0,sumE=0,peak=0;
+    for(let E=5;E<=Emax;E+=0.5){
+      let I=E<kv?(kv-E)*ma:0;
+      const muAl=2.66*Math.pow(30/E,3)+0.39, muCu=100*Math.pow(30/E,3)+1.4;
+      I*=Math.exp(-muAl*0.2)*Math.exp(-muCu*F);
+      let lines=0;
+      if(kv>69.5){const k=Math.pow((kv-69.5)/100,1.5)*ma*60*Math.exp(-muCu*F)*Math.exp(-muAl*0.2);lines=k*Math.exp(-Math.pow((E-59.3)/0.9,2))+0.35*k*Math.exp(-Math.pow((E-67.2)/0.9,2));}
+      const tot=I+lines;pts.push([E,tot]);sum+=tot;sumE+=tot*E;
+    }
+    const ymax=200;
+    x.fillStyle='#7f8b9c';x.font='500 10px "JetBrains Mono",monospace';x.textBaseline='top';
+    for(let i=0;i<=9;i++){const E=i*25;x.fillText(E,L+W*E/Emax-6,T+H+6);}
+    x.fillText('keV',w-30,T+H+16);
+    x.save();x.translate(10,T+H/2+30);x.rotate(-Math.PI/2);x.fillText('INTENSITÄT',0,0);x.restore();
+    x.beginPath();x.moveTo(L,T+H);
+    pts.forEach(([E,I])=>{x.lineTo(L+W*E/Emax,T+H-Math.min(I/ymax,1.05)*H);});
+    x.lineTo(L+W,T+H);x.closePath();
+    const gr=x.createLinearGradient(0,T,0,T+H);gr.addColorStop(0,'rgba(76,154,255,.45)');gr.addColorStop(1,'rgba(76,154,255,.02)');x.fillStyle=gr;x.fill();
+    x.beginPath();pts.forEach(([E,I],i)=>{const X=L+W*E/Emax,Y=T+H-Math.min(I/ymax,1.05)*H;i?x.lineTo(X,Y):x.moveTo(X,Y);});
+    x.strokeStyle=C.bl;x.lineWidth=2;x.shadowColor=C.bl;x.shadowBlur=8;x.stroke();x.shadowBlur=0;
+    const Xk=L+W*kv/Emax;x.strokeStyle=C.rd;x.setLineDash([4,4]);x.beginPath();x.moveTo(Xk,T);x.lineTo(Xk,T+H);x.stroke();x.setLineDash([]);
+    pillC(x,'E_max '+kv+' keV',Xk-4,T+10,C.rd,'r');
+    if(kv>69.5){pillC(x,'Kα 59 keV',L+W*59.3/Emax+6,T+40,C.gd,'l');}
+    const mean=sumE/sum;
+    document.getElementById('spp').innerHTML=`<span class="pill" style="--ac:${C.rd}">MAX ${kv} KEV</span><span class="pill" style="--ac:${C.gr}">MITTEL ≈ ${fmt(mean,0)} KEV</span><span class="pill" style="--ac:${C.gd}">LEISTUNG ${fmt(kv*ma,0)} W</span>`;
+  }
+  ['kv','ma'].forEach(i=>document.getElementById(i).oninput=draw);
+  document.querySelectorAll('#flt button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#flt button').forEach(q=>q.classList.remove('on'));b.classList.add('on');F=+b.dataset.v;draw();});
+  draw();window.onresize=()=>{if(document.getElementById('spc'))draw();};
+};
+
+/* ---- Wechselwirkung: Lambert-Beer ---- */
+EXTRA.wechsel=(ex)=>{
+  const M=[['KUNSTSTOFF',0.19,'#7f8b9c'],['ALUMINIUM',0.46,C.bl],['TITAN',1.22,C.li],['STAHL',2.93,C.or],['KUPFER',4.10,C.gd],['BLEI',63,C.rd]];
+  ex.innerHTML=`<div class="sec fx" style="--i:2">Live · Schwächung</div>
+  <div class="panel fx" style="--i:2"><h3>Wie viel kommt durch?</h3><div class="hint">Wähle Material und Dicke. Modell bei 100 keV (vereinfacht, ohne Streuung und Aufhärtung).</div>
+  <canvas id="lb"></canvas><div class="kv"><div><span>Transmission</span><b id="tr"></b></div><div><span>Halbwertsdicke</span><b id="hv"></b></div><div><span>μ</span><b id="mu"></b></div></div>
+  <div class="ctl"><div><label>Material</label><div class="seg" id="mat">${M.map((m,i)=>`<button data-i="${i}" class="${i==1?'on':''}">${m[0]}</button>`).join('')}</div></div>
+  <div><label>Dicke <b id="dv"></b></label><input type="range" id="d" min="0" max="100" value="30"></div></div></div>
+  <div class="panel fx" style="--i:3"><h3>Animation · Photonen im Material</h3><div class="hint">Blau: Photon kommt durch · Lila: Photoeffekt (geschluckt) · Orange: Compton (gestreut)</div><canvas id="ph"></canvas></div>`;
+  let mi=1;const c=document.getElementById('lb');
+  function draw(){
+    const d=+document.getElementById('d').value;const mu=M[mi][1];
+    document.getElementById('dv').textContent=d+' mm';
+    const T=Math.exp(-mu*d/10);
+    document.getElementById('tr').textContent=(T<0.001?'< 0,1':fmt(T*100,1))+' %';
+    document.getElementById('hv').textContent=fmt(Math.log(2)/mu*10,1)+' mm';
+    document.getElementById('mu').textContent=fmt(mu,2)+' /cm';
+    const [x,w,h]=cvs(c,210);const L=40,R=12,Tp=14,B=28,W=w-L-R,H=h-Tp-B;x.clearRect(0,0,w,h);grid(x,L,Tp,W,H,5,4);
+    x.fillStyle='#7f8b9c';x.font='500 10px "JetBrains Mono",monospace';x.textBaseline='top';
+    for(let i=0;i<=5;i++)x.fillText(i*20,L+W*i/5-6,Tp+H+6);x.fillText('mm',w-24,Tp+H+16);
+    for(let j=0;j<=4;j++)x.fillText((100-j*25)+'%',2,Tp+H*j/4-5);
+    M.forEach((m,k)=>{if(k===mi)return;x.beginPath();for(let t=0;t<=100;t++){const X=L+W*t/100,Y=Tp+H-Math.exp(-m[1]*t/10)*H;t?x.lineTo(X,Y):x.moveTo(X,Y);}x.strokeStyle=m[2];x.globalAlpha=.25;x.lineWidth=1;x.stroke();x.globalAlpha=1;});
+    const col=M[mi][2];x.beginPath();for(let t=0;t<=100;t++){const X=L+W*t/100,Y=Tp+H-Math.exp(-mu*t/10)*H;t?x.lineTo(X,Y):x.moveTo(X,Y);}
+    x.strokeStyle=col;x.lineWidth=2.5;x.shadowColor=col;x.shadowBlur=10;x.stroke();x.shadowBlur=0;
+    const hvl=Math.log(2)/mu*10;if(hvl<=100){const X=L+W*hvl/100;x.setLineDash([4,4]);x.strokeStyle=C.gd;x.beginPath();x.moveTo(X,Tp+H);x.lineTo(X,Tp+H/2);x.lineTo(L,Tp+H/2);x.stroke();x.setLineDash([]);pillC(x,'50 %',L+4,Tp+H/2-14,C.gd,'l');}
+    const X=L+W*d/100,Y=Tp+H-T*H;x.fillStyle=col;x.beginPath();x.arc(X,Y,5,0,7);x.fill();
+    pillC(x,fmt(T*100,1)+' %',Math.min(X+10,w-80),Math.max(Y-14,Tp+10),col,'l');
+  }
+  document.getElementById('d').oninput=draw;
+  document.querySelectorAll('#mat button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#mat button').forEach(q=>q.classList.remove('on'));b.classList.add('on');mi=+b.dataset.i;draw();});
+  draw();
+  // Photonen-Animation
+  const pc=document.getElementById('ph');let [px,pw,phh]=cvs(pc,170);const my=runId;const P=[];
+  function loop(){
+    if(my!==runId||!document.getElementById('ph'))return;
+    const mu=M[mi][1],d=+document.getElementById('d').value;
+    const bx=pw*0.35,bw=Math.max(4,(pw*0.4)*d/100);
+    px.fillStyle='rgba(5,8,13,.35)';px.fillRect(0,0,pw,phh);
+    px.fillStyle='rgba(76,154,255,.08)';px.fillStyle=M[mi][2];px.globalAlpha=.18;px.fillRect(bx,10,bw,phh-20);px.globalAlpha=1;
+    px.strokeStyle=M[mi][2];px.strokeRect(bx,10,bw,phh-20);
+    if(Math.random()<.6)P.push({x:0,y:20+Math.random()*(phh-40),vx:3,vy:0,s:0,fate:null});
+    for(let i=P.length-1;i>=0;i--){const p=P[i];
+      if(p.s===0&&p.x>bx&&p.x<bx+bw){const prob=1-Math.exp(-mu*(3/(pw*0.4))*10);if(Math.random()<prob){if(Math.random()<(mi>=4?0.6:0.25)){p.s=2;p.t=12;}else{p.s=1;const a=(Math.random()-.5)*2.6;p.vx=3*Math.cos(a);p.vy=3*Math.sin(a);}}}
+      p.x+=p.vx;p.y+=p.vy;
+      const col=p.s===0?C.bl:p.s===1?C.or:C.li;
+      px.fillStyle=col;px.shadowColor=col;px.shadowBlur=6;px.beginPath();px.arc(p.x,p.y,p.s===2?4:2,0,7);px.fill();px.shadowBlur=0;
+      if(p.s===2){p.t--;p.vx=0;if(p.t<=0)P.splice(i,1);continue;}
+      if(p.x>pw||p.y<0||p.y>phh||p.x<0)P.splice(i,1);
+    }
+    px.fillStyle='#1b2532';px.fillRect(pw-8,10,6,phh-20);
+    requestAnimationFrame(loop);
+  }
+  loop();
+};
+
+/* ---- CT-Prinzip: Rotation ---- */
+function objF(x,y){ // Bauteil-Schnitt (Zylinderkopf-artig)
+  if(Math.abs(x)>0.62||Math.abs(y)>0.38)return 0;
+  if((x+0.32)**2+(y)**2<0.13**2)return 0;
+  if((x-0.05)**2+(y+0.1)**2<0.1**2)return 0;
+  if((x-0.38)**2+(y-0.12)**2<0.09**2)return 0;
+  return 1;
+}
+EXTRA.ct=(ex)=>{
+  ex.innerHTML=`<div class="sec fx" style="--i:2">Animation · So entsteht ein CT</div>
+  <div class="panel fx" style="--i:2"><div class="seg" id="mode" style="margin-bottom:10px"><button data-v="i" class="on">INDUSTRIE: BAUTEIL DREHT</button><button data-v="m">MEDIZIN: GANTRY DREHT</button></div>
+  <canvas id="rot"></canvas><div class="hint" style="margin:8px 0 0">Rechts siehst du live das Detektorsignal (Projektion). Dicke Bereiche schwächen stärker → weniger Signal.</div></div>`;
+  const c=document.getElementById('rot');let mode='i';const my=runId;let ang=0;
+  document.querySelectorAll('#mode button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#mode button').forEach(q=>q.classList.remove('on'));b.classList.add('on');mode=b.dataset.v;});
+  let [x,w,h]=cvs(c,280);
+  function loop(){
+    if(my!==runId||!document.getElementById('rot'))return;
+    ang+=0.012;
+    x.clearRect(0,0,w,h);
+    const cx=w*0.45,cy=h/2,sc=Math.min(w*0.22,h*0.32),Rs=Math.min(w*0.38,h*0.46);
+    const ga=mode==='m'?ang:0, oa=mode==='i'?ang:0;
+    const sx=cx-Math.cos(ga)*Rs, sy=cy-Math.sin(ga)*Rs;
+    const dcx=cx+Math.cos(ga)*Rs*0.75, dcy=cy+Math.sin(ga)*Rs*0.75;
+    const nx=-Math.sin(ga),ny=Math.cos(ga);const half=sc*1.25;
+    // Fächer
+    x.fillStyle='rgba(179,136,255,.08)';x.beginPath();x.moveTo(sx,sy);x.lineTo(dcx+nx*half,dcy+ny*half);x.lineTo(dcx-nx*half,dcy-ny*half);x.closePath();x.fill();
+    x.strokeStyle='rgba(179,136,255,.4)';x.setLineDash([4,5]);x.stroke();x.setLineDash([]);
+    // Objekt
+    x.save();x.translate(cx,cy);x.rotate(oa);
+    x.fillStyle='#9aa4b1';rr(x,-0.62*sc,-0.38*sc,1.24*sc,0.76*sc,8);x.fill();
+    x.fillStyle='#05080d';[[-0.32,0,0.13],[0.05,-0.1,0.1],[0.38,0.12,0.09]].forEach(([a,b,r])=>{x.beginPath();x.arc(a*sc,b*sc,r*sc,0,7);x.fill();});
+    x.restore();
+    if(mode==='i'){x.strokeStyle=C.or;x.setLineDash([3,3]);x.beginPath();x.ellipse(cx,cy+sc*0.85,sc*0.7,sc*0.12,0,0,7);x.stroke();x.setLineDash([]);}
+    // Projektion
+    const N=60;const prof=[];
+    for(let j=0;j<N;j++){
+      const u=(j/(N-1)-0.5)*2;const dx=dcx+nx*half*u,dy=dcy+ny*half*u;
+      let s=0;const steps=90;
+      for(let k=0;k<steps;k++){const t=k/steps;const wx=sx+(dx-sx)*t,wy=sy+(dy-sy)*t;
+        let ox=(wx-cx)/sc,oy=(wy-cy)/sc;const co=Math.cos(-oa),si=Math.sin(-oa);const rx=ox*co-oy*si,ry=ox*si+oy*co;s+=objF(rx,ry);}
+      const len=Math.hypot(dx-sx,dy-sy)/sc/steps;prof.push(Math.exp(-s*len*1.6));
+    }
+    // Detektor
+    x.strokeStyle=C.gr;x.lineWidth=5;x.shadowColor=C.gr;x.shadowBlur=8;x.beginPath();x.moveTo(dcx+nx*half,dcy+ny*half);x.lineTo(dcx-nx*half,dcy-ny*half);x.stroke();x.shadowBlur=0;x.lineWidth=1;
+    // Profil am Detektor
+    x.beginPath();prof.forEach((p,j)=>{const u=(j/(N-1)-0.5)*2;const bx=dcx+nx*half*u+Math.cos(ga)*(8+p*sc*0.45),by=dcy+ny*half*u+Math.sin(ga)*(8+p*sc*0.45);j?x.lineTo(bx,by):x.moveTo(bx,by);});
+    x.strokeStyle=C.gr;x.lineWidth=2;x.shadowColor=C.gr;x.shadowBlur=6;x.stroke();x.shadowBlur=0;x.lineWidth=1;
+    // Quelle
+    x.fillStyle=C.gd;x.shadowColor=C.gd;x.shadowBlur=14;x.beginPath();x.arc(sx,sy,6,0,7);x.fill();x.shadowBlur=0;
+    pillC(x,'QUELLE',sx+(mode==='i'?10:12),sy-18,C.gd,'l');
+    pillC(x,'DETEKTOR',Math.min(dcx+8,w-80),Math.max(20,dcy-half-14),C.gr,'l');
+    pillC(x,mode==='i'?'DREHTELLER':'BAUTEIL',cx,Math.min(h-12,cy+sc*0.85+20),C.or,'c');
+    pillC(x,'WINKEL '+Math.round(((ang*180/Math.PI)%360))+'°',8,h-14,C.li,'l');
+    requestAnimationFrame(loop);
+  }
+  loop();
+};
+
+/* ---- CT-Labor: Rekonstruktion ---- */
+EXTRA.labor=(ex)=>{
+  ex.innerHTML=`<div class="panel fx" style="--i:2"><h3>Rekonstruiere einen Gussteil-Schnitt</h3><div class="hint">Links das echte Bauteil (mit Kanälen, Poren und einem Eisen-Einschluss), in der Mitte das Sinogramm, rechts deine Rekonstruktion. Drücke START.</div>
+  <div class="row3"><div class="cv"><canvas id="c0" width="128" height="128"></canvas><span class="cap" style="color:${C.gd}">ORIGINAL</span></div><div class="cv"><canvas id="c1" width="128" height="128"></canvas><span class="cap" style="color:${C.li}">SINOGRAMM</span></div><div class="cv"><canvas id="c2" width="128" height="128"></canvas><span class="cap" style="color:${C.gr}">ERGEBNIS</span></div></div>
+  <div class="pills" id="lp"></div>
+  <div class="ctl"><div><label>Anzahl Projektionen</label><div class="seg" id="na"><button data-v="8">8</button><button data-v="24">24</button><button data-v="90">90</button><button data-v="180" class="on">180</button></div></div>
+  <div><label>Rampenfilter</label><div class="seg" id="fi"><button data-v="1" class="on">FILTER AN (FBP)</button><button data-v="0">FILTER AUS</button></div></div>
+  <div><label>Rauschen</label><div class="seg" id="no"><button data-v="0" class="on">AUS</button><button data-v="1">AN</button></div></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" id="go">▶ START</button><button class="btn ghost" id="rs">↺ ZURÜCKSETZEN</button></div></div></div>
+  <div class="row2"><div class="panel fx" style="--i:3"><h3>Was du beobachten kannst</h3><div class="in"><ul><li>Mit <b>8 Projektionen</b> entstehen Streifen – zu wenig Information.</li><li><b>Filter aus</b>: Das Bild ist verschmiert, Poren verschwinden fast.</li><li><b>Rauschen an</b>: Kleine Poren sind schwerer zu erkennen.</li><li>Der helle <b>Einschluss</b> malt im Sinogramm eine helle Sinuskurve.</li></ul></div></div>
+  <div class="panel fx" style="--i:4"><h3>Das passiert im Rechner</h3><div class="in"><p>Für jeden Winkel wird die Projektion gemessen (eine Zeile im Sinogramm), mit dem <b>Rampenfilter</b> gefaltet und über das Bild zurückprojiziert. Genau so – nur in 3D mit tausenden Projektionen – arbeitet die Rekonstruktion deiner Anlage.</p></div></div></div>`;
+  const N=128;const img=new Float32Array(N*N);
+  const circ=(x,y,a,b,r)=>(x-a)**2+(y-b)**2<r*r;
+  for(let j=0;j<N;j++)for(let i=0;i<N;i++){const x=(i+.5)/N*2-1,y=(j+.5)/N*2-1;let v=0;
+    if(Math.abs(x)<0.8&&Math.abs(y)<0.62&&!(Math.abs(x)>0.5&&Math.abs(y)>0.35&&(Math.abs(x)-0.5)**2+(Math.abs(y)-0.35)**2>0.3**2))v=1;
+    if(circ(x,y,-0.38,0.05,0.2)||circ(x,y,0.35,-0.15,0.14))v=0;
+    if(circ(x,y,0.1,0.38,0.045)||circ(x,y,0.5,0.3,0.03)||circ(x,y,-0.15,-0.4,0.055)||circ(x,y,0.05,-0.05,0.025))v=0;
+    if(circ(x,y,-0.05,-0.25,0.04))v=2.6;
+    img[j*N+i]=v;}
+  const c0=document.getElementById('c0'),c1=document.getElementById('c1'),c2=document.getElementById('c2');
+  const x0=c0.getContext('2d'),x1=c1.getContext('2d'),x2=c2.getContext('2d');
+  const base=x0.createImageData(N,N);
+  for(let k=0;k<N*N;k++){const v=Math.min(255,img[k]*150);base.data[k*4]=v;base.data[k*4+1]=v+4>255?255:v+4;base.data[k*4+2]=v+10>255?255:v+10;base.data[k*4+3]=255;}
+  x0.putImageData(base,0,0);
+  let A=180,filt=1,noise=0,running=false,step=0,proj=[],rec=new Float32Array(N*N);const my=runId;
+  const tau=2/N;const hK=new Float32Array(2*N-1);for(let n=-(N-1);n<N;n++){hK[n+N-1]=n===0?1/(4*tau*tau):(n%2?-1/(n*n*Math.PI*Math.PI*tau*tau):0);}
+  function project(th){const p=new Float32Array(N);const c=Math.cos(th),s=Math.sin(th);
+    for(let j=0;j<N;j++){const t=(j+.5)/N*2-1;let sum=0;for(let k=0;k<N;k++){const sv=(k+.5)/N*2-1;const x=t*c-sv*s,y=t*s+sv*c;const ii=Math.floor((x+1)/2*N),jj=Math.floor((y+1)/2*N);if(ii>=0&&ii<N&&jj>=0&&jj<N)sum+=img[jj*N+ii];}p[j]=sum*tau;}
+    if(noise)for(let j=0;j<N;j++)p[j]+=gauss()*0.03;return p;}
+  function prep(){proj=[];for(let a=0;a<A;a++)proj.push(project(a*Math.PI/A));rec=new Float32Array(N*N);step=0;
+    c1.height=A;x1.clearRect(0,0,N,A);x2.fillStyle='#070b11';x2.fillRect(0,0,N,N);x0.putImageData(base,0,0);info();}
+  function filterP(p){if(!filt)return p;const q=new Float32Array(N);for(let j=0;j<N;j++){let s=0;for(let k=0;k<N;k++)s+=p[k]*hK[j-k+N-1];q[j]=s*tau;}return q;}
+  function back(a){const th=a*Math.PI/A,c=Math.cos(th),s=Math.sin(th);const q=filterP(proj[a]);const sc=Math.PI/A;
+    for(let j=0;j<N;j++){const y=(j+.5)/N*2-1;for(let i=0;i<N;i++){const x=(i+.5)/N*2-1;const t=x*c+y*s;const f=(t+1)/2*N-.5;const k=Math.floor(f);if(k<0||k>=N-1)continue;const wv=f-k;rec[j*N+i]+=(q[k]*(1-wv)+q[k+1]*wv)*sc;}}
+    // Sinogramm-Zeile
+    const row=x1.createImageData(N,1);for(let j=0;j<N;j++){const v=Math.min(255,Math.max(0,proj[a][j]/2.2*255));row.data[j*4]=v*0.75;row.data[j*4+1]=v*0.55;row.data[j*4+2]=v;row.data[j*4+3]=255;}x1.putImageData(row,0,a);}
+  function show(){let mn=1e9,mx=-1e9;for(const v of rec){if(v<mn)mn=v;if(v>mx)mx=v;}if(filt){mn=0;mx=Math.max(mx*0.45,1e-6);}
+    const im=x2.createImageData(N,N);for(let k=0;k<N*N;k++){let v=(rec[k]-mn)/(mx-mn);v=Math.max(0,Math.min(1,v))*255;im.data[k*4]=v;im.data[k*4+1]=Math.min(255,v+4);im.data[k*4+2]=Math.min(255,v+10);im.data[k*4+3]=255;}x2.putImageData(im,0,0);
+    // Linie im Original
+    x0.putImageData(base,0,0);if(step<A&&step>0){const th=step*Math.PI/A;x0.strokeStyle=C.gd;x0.lineWidth=1.2;x0.shadowColor=C.gd;x0.shadowBlur=4;x0.beginPath();const c=Math.cos(th+Math.PI/2),s=Math.sin(th+Math.PI/2);x0.moveTo(64-c*90,64-s*90);x0.lineTo(64+c*90,64+s*90);x0.stroke();x0.shadowBlur=0;}}
+  function info(){document.getElementById('lp').innerHTML=`<span class="pill" style="--ac:${C.li}">WINKEL ${step}/${A}</span><span class="pill" style="--ac:${C.gr}">${filt?'FBP':'OHNE FILTER'}</span><span class="pill" style="--ac:${noise?C.rd:C.mut||'#7f8b9c'}">${noise?'RAUSCHEN AN':'OHNE RAUSCHEN'}</span>`;}
+  function loop(){if(my!==runId||!document.getElementById('c2'))return;if(running){const per=Math.max(1,Math.round(A/90));for(let k=0;k<per&&step<A;k++){back(step);step++;}show();info();if(step>=A){running=false;document.getElementById('go').textContent='▶ NOCHMAL';}}requestAnimationFrame(loop);}
+  const goB=document.getElementById('go');
+  goB.onclick=()=>{if(step>=A)prep();running=!running;goB.textContent=running?'❚❚ PAUSE':'▶ WEITER';};
+  document.getElementById('rs').onclick=()=>{running=false;goB.textContent='▶ START';prep();};
+  const seg=(id,fn)=>document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#'+id+' button').forEach(q=>q.classList.remove('on'));b.classList.add('on');fn(+b.dataset.v);running=false;goB.textContent='▶ START';prep();});
+  seg('na',v=>A=v);seg('fi',v=>filt=v);seg('no',v=>noise=v);
+  prep();loop();
+};
+
+/* ---- Industrie: Geometrie-Rechner ---- */
+EXTRA.industrie=(ex)=>{
+  ex.innerHTML=`<div class="sec fx" style="--i:2">Rechner · Vergrößerung &amp; Voxel</div>
+  <div class="panel fx" style="--i:2"><h3>Scan-Geometrie</h3><div class="hint">Gib die Abstände deiner Anlage ein – oder schieb den Regler, um das Bauteil näher an die Röhre zu fahren.</div>
+  <div id="geo"></div>
+  <div class="ctl"><div><label>FOD (Fokus–Objekt) <b id="fodv"></b></label><input type="range" id="fod" min="50" max="950" value="300"></div></div>
+  <div class="row2" style="margin-top:10px;grid-template-columns:1fr 1fr"><div><label class="sub">FDD <span style="text-transform:none">(mm)</span></label><input class="num-in" id="fdd" type="number" value="1000"></div><div><label class="sub">Pixelgröße <span style="text-transform:none">(µm)</span></label><input class="num-in" id="pix" type="number" value="200"></div><div><label class="sub">Pixel (Breite)</label><input class="num-in" id="npx" type="number" value="2000"></div><div><label class="sub">Brennfleck <span style="text-transform:none">(µm)</span></label><input class="num-in" id="foc" type="number" value="50"></div></div>
+  <div class="kv"><div><span>Vergrößerung</span><b id="o1"></b></div><div><span>Voxelgröße</span><b id="o2"></b></div><div><span>Messfeld Ø</span><b id="o3"></b></div><div><span>Unschärfe im Bauteil</span><b id="o4"></b></div></div>
+  <div class="fb" id="o5"></div></div>`;
+  function calc(){
+    const fdd=Math.max(100,+document.getElementById('fdd').value||1000);const fodS=document.getElementById('fod');fodS.max=fdd-50;
+    const fod=Math.min(+fodS.value,fdd-50);const pix=+document.getElementById('pix').value||200;const npx=+document.getElementById('npx').value||2000;const foc=+document.getElementById('foc').value||0;
+    const M=fdd/fod,vox=pix/M,fov=npx*pix/1000/M,ug=foc*(M-1)/M;
+    document.getElementById('fodv').textContent=fod+' mm';
+    document.getElementById('o1').textContent=fmt(M,2)+' ×';
+    document.getElementById('o2').textContent=fmt(vox,1)+' µm';
+    document.getElementById('o3').textContent=fmt(fov,0)+' mm';
+    document.getElementById('o4').textContent=fmt(ug,1)+' µm';
+    const minDef=vox*3/1000;
+    document.getElementById('o5').innerHTML=`<b style="color:${C.gd}">Faustregel:</b> Poren ab ca. <b>${fmt(minDef,2)} mm</b> (≈ 3 Voxel) sind sicher erkennbar. ${ug>vox?`<span style="color:${C.rd}">Achtung: Die Brennfleck-Unschärfe ist größer als ein Voxel – kleinere Voxel bringen hier keine echte Auflösung.</span>`:`<span style="color:${C.gr}">Brennfleck-Unschärfe ist kleiner als ein Voxel – passt.</span>`}`;
+    const W=360,H=170,sx=24,dx=330;const ox=sx+(dx-sx)*fod/fdd;const dh=120;const oh=Math.max(12,dh*0.55/M*1.8);
+    const objR=Math.min(30,(fov/2)/(fdd)*(dx-sx)*M/ M*0+ oh/2);
+    document.getElementById('geo').innerHTML=`<svg class="svgfig" viewBox="0 0 ${W} ${H}">
+    <defs><filter id="g2"><feGaussianBlur stdDeviation="2"/></filter></defs>
+    <path d="M${sx} 85 L${dx} ${85-dh/2} L${dx} ${85+dh/2} Z" fill="${C.or}" opacity=".08"/>
+    <path d="M${sx} 85 L${dx} ${85-dh/2} M${sx} 85 L${dx} ${85+dh/2}" stroke="${C.or}" stroke-dasharray="4 4" opacity=".7"/>
+    <line x1="${sx}" y1="85" x2="${dx}" y2="85" stroke="#2a3644" stroke-dasharray="2 4"/>
+    <circle cx="${sx}" cy="85" r="6" fill="${C.gd}"/><circle cx="${sx}" cy="85" r="10" fill="${C.gd}" opacity=".35" filter="url(#g2)"/>
+    <rect x="${ox-objR}" y="${85-objR}" width="${objR*2}" height="${objR*2}" rx="6" fill="#9aa4b1" style="transition:all .3s"/>
+    <circle cx="${ox}" cy="85" r="${objR*0.35}" fill="#05080d"/>
+    <ellipse cx="${ox}" cy="${85+objR+6}" rx="${objR+6}" ry="4" fill="none" stroke="${C.or}"/>
+    <rect x="${dx}" y="${85-dh/2}" width="7" height="${dh}" rx="2" fill="${C.gr}" style="filter:drop-shadow(0 0 4px ${C.gr})"/>
+    <line x1="${sx}" y1="${H-18}" x2="${ox}" y2="${H-18}" stroke="${C.bl}"/><line x1="${sx}" y1="${H-6}" x2="${dx}" y2="${H-6}" stroke="${C.li}"/>
+    ${pillS((sx+ox)/2,H-30,'FOD '+fod,C.bl,'m')}${pillS(dx-60,H-18,'FDD '+fdd,C.li,'m')}${pillS(sx+2,16,'FOKUS',C.gd,'s')}${pillS(dx+6,16,'DETEKTOR',C.gr,'e')}
+    </svg>`;
+  }
+  ['fod','fdd','pix','npx','foc'].forEach(i=>document.getElementById(i).oninput=calc);calc();
+};
+
+/* ---- Fehler-Detektiv: Spiel ---- */
+EXTRA.detektiv=(ex)=>{
+  const K=[['GAS','Gaspore',C.bl],['LUNKER','Schwindungslunker',C.or],['EINSCHLUSS','Dichter Einschluss',C.gd],['KERN','Kernbruch',C.li]];
+  const EXPL={GAS:'Rund, glatte Wände, scharf begrenzt – typisch für eingeschlossenes Gas.',LUNKER:'Zerklüftet und schwammartig – entsteht bei der Erstarrung an Materialanhäufungen.',EINSCHLUSS:'Heller als Aluminium = höhere Dichte, z. B. ein Eisenpartikel.',KERN:'Im Kanal liegt Material – der Sandkern ist gebrochen und Metall ist hineingeflossen.'};
+  let score=0,total=0,streak=0,cur=null;
+  ex.innerHTML=`<div class="sec fx" style="--i:2">Spiel · Erkenne den Fehler</div>
+  <div class="panel fx" style="--i:2"><div class="pills" id="sc"></div>
+  <div class="cv" style="max-width:420px;margin:0 auto"><span class="lbl pill" style="--ac:${C.rd}">CT-SCHNITT · ALSI-GUSS</span><canvas id="dg" width="220" height="220" style="image-rendering:auto"></canvas></div>
+  <div class="hint" style="text-align:center;margin:10px 0">Welcher Fehler ist in diesem Schnitt versteckt?<br><span style="font-size:12.5px">Hinweis: Die zwei großen Öffnungen sind gewollte Kanäle (Sandkerne, z. B. Wassermantel).</span></div>
+  <div class="row2" id="ans" style="grid-template-columns:1fr 1fr">${K.map(k=>`<button class="qopt" data-k="${k[0]}" style="text-align:center;font-family:'JetBrains Mono',monospace;font-weight:700;color:${k[2]}">${k[1].toUpperCase()}</button>`).join('')}</div>
+  <div id="dfb"></div></div>`;
+  const cv=document.getElementById('dg'),x=cv.getContext('2d');const N=220;
+  function gen(){
+    cur=K[Math.floor(Math.random()*4)][0];
+    const f=new Float32Array(N*N);
+    const holes=[[70,120,22],[150,90,18]];
+    const inPart=(i,j)=>{const u=(i-110)/88,v=(j-110)/68;if(Math.abs(u)>1||Math.abs(v)>1)return false;if(Math.abs(u)>0.75&&Math.abs(v)>0.7&&((Math.abs(u)-0.75)/0.25)**2+((Math.abs(v)-0.7)/0.3)**2>1)return false;return true;};
+    for(let j=0;j<N;j++)for(let i=0;i<N;i++){let v=0.07;if(inPart(i,j))v=0.62;for(const h of holes)if((i-h[0])**2+(j-h[1])**2<h[2]**2)v=0.07;f[j*N+i]=v;}
+    const free=()=>{for(let t=0;t<500;t++){const i=40+Math.random()*140,j=60+Math.random()*100;let ok=inPart(i,j);for(const h of holes)if(Math.hypot(i-h[0],j-h[1])<h[2]+16)ok=false;if(ok&&inPart(i+12,j)&&inPart(i-12,j)&&inPart(i,j+12)&&inPart(i,j-12))return [i,j];}return [110,140];};
+    const disk=(a,b,r,val)=>{for(let j=Math.floor(b-r-1);j<=b+r+1;j++)for(let i=Math.floor(a-r-1);i<=a+r+1;i++){if(i<0||j<0||i>=N||j>=N)continue;if((i-a)**2+(j-b)**2<r*r)f[j*N+i]=val;}};
+    if(cur==='GAS'){const [a,b]=free();disk(a,b,5+Math.random()*4,0.07);if(Math.random()<.5){const [c,d]=free();disk(c,d,2.5,0.07);}}
+    if(cur==='LUNKER'){let [a,b]=free();for(let k=0;k<45;k++){disk(a,b,1+Math.random()*2.2,0.07+Math.random()*0.25);a+=(Math.random()-.5)*5;b+=(Math.random()-.5)*5;}}
+    if(cur==='EINSCHLUSS'){const [a,b]=free();for(let k=0;k<5;k++)disk(a+(Math.random()-.5)*4,b+(Math.random()-.5)*4,1.8+Math.random()*1.5,1.0);}
+    if(cur==='KERN'){const h=holes[Math.floor(Math.random()*2)];const ang=Math.random()*Math.PI;const w=4+Math.random()*3;
+      for(let j=0;j<N;j++)for(let i=0;i<N;i++){const dx=i-h[0],dy=j-h[1];if(dx*dx+dy*dy<h[2]*h[2]){const d=Math.abs(-dx*Math.sin(ang)+dy*Math.cos(ang));if(d<w)f[j*N+i]=0.62;}}}
+    // Glätten
+    const g=new Float32Array(N*N);for(let j=1;j<N-1;j++)for(let i=1;i<N-1;i++){let s=0;for(let b=-1;b<=1;b++)for(let a=-1;a<=1;a++)s+=f[(j+b)*N+i+a];g[j*N+i]=s/9;}
+    const im=x.createImageData(N,N);
+    for(let k=0;k<N*N;k++){let v=g[k]+gauss()*0.035;v=Math.max(0,Math.min(1,v))*255;im.data[k*4]=v;im.data[k*4+1]=Math.min(255,v+3);im.data[k*4+2]=Math.min(255,v+8);im.data[k*4+3]=255;}
+    x.putImageData(im,0,0);
+    document.getElementById('dfb').innerHTML='';
+    document.querySelectorAll('#ans .qopt').forEach(b=>{b.classList.remove('ok','no');b.disabled=false;});
+    sc();
+  }
+  function sc(){document.getElementById('sc').innerHTML=`<span class="pill" style="--ac:${C.gr}">RICHTIG ${score}/${total}</span><span class="pill" style="--ac:${C.gd}">SERIE ${streak}</span>`;}
+  document.querySelectorAll('#ans .qopt').forEach(b=>b.onclick=()=>{
+    if(b.disabled)return;const ok=b.dataset.k===cur;total++;if(ok){score++;streak++;}else streak=0;
+    document.querySelectorAll('#ans .qopt').forEach(q=>{q.disabled=true;if(q.dataset.k===cur)q.classList.add('ok');});
+    if(!ok)b.classList.add('no');
+    const name=K.find(k=>k[0]===cur)[1];
+    document.getElementById('dfb').innerHTML=`<div class="fb" style="border-color:${ok?C.gr:C.rd}"><b style="color:${ok?C.gr:C.rd}">${ok?'✓ RICHTIG!':'✗ LEIDER FALSCH'}</b> – Es war: <b>${name}</b>. ${EXPL[cur]}</div><button class="btn" style="margin-top:10px;width:100%" id="nx">NÄCHSTES BILD ›</button>`;
+    document.getElementById('nx').onclick=gen;sc();
+  });
+  gen();
+};
+
+/* ---- Strahlenschutz ---- */
+EXTRA.schutz=(ex)=>{
+  const D=[['Zahnröntgen',0.01],['Röntgen Brustkorb',0.02],['Flug FRA–New York (hin+zurück)',0.1],['Grenzwert Bevölkerung / Jahr',1],['Natürliche Strahlung DE / Jahr',2.1],['CT Bauchraum',10],['Grenzwert beruflich / Jahr',20]];
+  const lg=v=>(Math.log10(v)+2.2)/(Math.log10(30)+2.2);
+  ex.innerHTML=`<div class="sec fx" style="--i:2">Rechner · Abstandsquadratgesetz</div>
+  <div class="panel fx" style="--i:2"><h3>Abstand ist dein bester Schutz</h3><div class="hint">Angenommen: 100 % Dosisleistung in 1 m Abstand. Wie viel bleibt übrig?</div>
+  <canvas id="aq"></canvas><div class="ctl"><div><label>Abstand <b id="av"></b></label><input type="range" id="ab" min="25" max="500" value="200"></div></div>
+  <div class="kv"><div><span>Dosisleistung</span><b id="ar"></b></div><div><span>Faktor</span><b id="af"></b></div></div></div>
+  <div class="sec fx" style="--i:3">Vergleich · Typische Dosiswerte</div>
+  <div class="panel fx" style="--i:3"><h3>Effektive Dosis im Vergleich</h3><div class="hint">Angaben in Millisievert (mSv), logarithmische Skala. Typische Richtwerte (Quelle u. a. Bundesamt für Strahlenschutz) – Einzelwerte schwanken je nach Gerät und Person.</div>
+  ${D.map((d,i)=>`<div class="dose"><span style="color:var(--mut)">${d[0]}</span><div><div class="b" style="width:${Math.max(4,lg(d[1])*78)}%;--ac:${d[0].includes('Grenzwert')?C.rd:d[1]>5?C.or:C.gd};background:var(--ac);animation-delay:${i*90}ms"><span class="pill" style="--ac:${d[0].includes('Grenzwert')?C.rd:d[1]>5?C.or:C.gd}">${fmt(d[1],d[1]<0.1?2:1)} mSv</span></div></div></div>`).join('')}
+  </div>`;
+  const c=document.getElementById('aq');
+  function draw(){const r=+document.getElementById('ab').value/100;const D=100/(r*r);
+    document.getElementById('av').textContent=fmt(r,2)+' m';document.getElementById('ar').textContent=(D>=10?fmt(D,0):fmt(D,1))+' %';document.getElementById('af').textContent='1/'+fmt(r*r,r*r<10?2:0);
+    const [x,w,h]=cvs(c,170);x.clearRect(0,0,w,h);const L=10,cy=h/2;
+    x.fillStyle=C.gd;x.shadowColor=C.gd;x.shadowBlur=14;x.beginPath();x.arc(L+14,cy,7,0,7);x.fill();x.shadowBlur=0;
+    const px=L+14+(w-60)*r/5;
+    for(let k=1;k<=5;k++){const X=L+14+(w-60)*k/5;x.strokeStyle='#1b2532';x.setLineDash([3,4]);x.beginPath();x.arc(L+14,cy,X-L-14,-0.7,0.7);x.stroke();x.setLineDash([]);x.fillStyle='#7f8b9c';x.font='500 10px "JetBrains Mono",monospace';x.fillText(k+' m',X-8,h-6);}
+    for(let a=0;a<70;a++){const ang=(Math.random()-.5)*1.3,len=Math.random()*(w-60);x.fillStyle='rgba(245,197,66,'+(0.6*Math.max(0.05,1-len/(w-60)))+')';x.fillRect(L+14+Math.cos(ang)*len,cy+Math.sin(ang)*len,2,2);}
+    x.strokeStyle=C.gd;x.lineWidth=2;x.beginPath();x.moveTo(px,cy-34);x.lineTo(px,cy+34);x.stroke();x.lineWidth=1;
+    x.fillStyle=C.tx||'#dfe6ef';x.beginPath();x.arc(px+16,cy-14,6,0,7);x.fill();x.fillRect(px+11,cy-6,10,22);
+    pillC(x,(D>=10?fmt(D,0):fmt(D,1))+' %',Math.min(px+30,w-70),cy-28,D>50?C.rd:D>10?C.or:C.gr,'l');
+  }
+  document.getElementById('ab').oninput=draw;draw();
+};
+
+/* ---- Geschichte ---- */
+const TL=[
+['1895','Entdeckung','Wilhelm Conrad Röntgen entdeckt am 8. November in Würzburg die „X-Strahlen“.',C.li],
+['1896','Erste Anwendungen','Wenige Wochen nach der Veröffentlichung werden weltweit Knochenbrüche geröntgt.',C.li],
+['1901','Nobelpreis','Röntgen erhält den allerersten Nobelpreis für Physik.',C.gd],
+['1913','Coolidge-Röhre','William Coolidge erfindet die Glühkathodenröhre – Grundlage aller heutigen Röhren.',C.bl],
+['1917','Radon-Transformation','Johann Radon beschreibt die Mathematik, mit der man aus Projektionen ein Bild berechnet.',C.bl],
+['1963','Cormack','Allan Cormack veröffentlicht theoretische Grundlagen der Rekonstruktion.',C.bl],
+['1971','Erster CT-Scan','Godfrey Hounsfield (EMI) scannt in London den ersten Patienten – einen Kopf.',C.gr],
+['1979','Nobelpreis Medizin','Hounsfield und Cormack erhalten den Nobelpreis für die Computertomographie.',C.gd],
+['1984','Feldkamp-Algorithmus','Feldkamp, Davis und Kress veröffentlichen die Kegelstrahl-Rekonstruktion (FDK).',C.gr],
+['1989','Spiral-CT','Willi Kalender stellt die Spiral-CT vor – kontinuierlicher Vorschub statt Schicht für Schicht.',C.gr],
+['1990er','Industrie-CT','Flachdetektoren und schnellere Rechner bringen die CT in die Werkstoffprüfung und Messtechnik.',C.or],
+['1997','Volume Graphics','In Heidelberg wird Volume Graphics gegründet – Hersteller von VGStudio MAX.',C.or],
+['2000er','Mikro-CT & Messtechnik','CT wird zum Messgerät: Soll-Ist-Vergleich und Wanddicke direkt am Volumen.',C.or],
+['2010er','Inline-CT','Gießereien setzen CT in der Linie ein – Bauteile werden im Takt geprüft.',C.rd],
+['2021','Photonenzählende CT','Die erste photonenzählende CT kommt in die Klinik: Detektoren messen jedes Photon einzeln mit Energie.',C.rd],
+['Heute','KI in der Auswertung','Künstliche Intelligenz hilft, Defekte schneller zu finden und Rauschen zu reduzieren.',C.gr]
+];
+EXTRA.geschichte=(ex)=>{ex.innerHTML=`<div class="tl">${TL.map((t,i)=>`<div class="tli fx" style="--i:${i+2};--ac:${t[3]}"><div class="y">${t[0]}</div><b>${t[1]}</b><p>${t[2]}</p></div>`).join('')}</div>`;};
+
+/* ---- Quiz ---- */
+const QZ=[
+['Wer entdeckte 1895 die Röntgenstrahlung?',['Wilhelm Conrad Röntgen','Marie Curie','Godfrey Hounsfield','Max Planck'],0,'Röntgen entdeckte die Strahlung am 8. November 1895 in Würzburg.'],
+['Was bestimmt die maximale Photonenenergie einer Röhre?',['Der Röhrenstrom','Die Röhrenspannung','Die Belichtungszeit','Die Detektorgröße'],1,'E_max = e · U. Bei 225 kV entstehen maximal 225 keV.'],
+['Wie viel der Elektronenenergie wird ungefähr zu Röntgenstrahlung?',['ca. 1 %','ca. 25 %','ca. 50 %','ca. 99 %'],0,'Rund 99 % werden zu Wärme – deshalb die Kühlung.'],
+['Halbwertsdicke von Aluminium bei 100 keV?',['ca. 1,5 mm','ca. 15 mm','ca. 150 mm','ca. 1,5 m'],1,'μ ≈ 0,46/cm → d½ = 0,693/0,46 ≈ 1,5 cm.'],
+['Was macht der Rampenfilter bei der Rekonstruktion?',['Er entfernt die Unschärfe der Rückprojektion','Er entfernt Streustrahlung','Er färbt das Bild ein','Er ersetzt die Kalibrierung'],0,'Ohne Filter wäre das Bild sternförmig verschmiert.'],
+['FOD = 200 mm, FDD = 1000 mm. Wie groß ist die Vergrößerung?',['2-fach','5-fach','10-fach','0,2-fach'],1,'M = FDD / FOD = 1000 / 200 = 5.'],
+['Pixelgröße 200 µm, Vergrößerung 5. Voxelgröße?',['1000 µm','40 µm','20 µm','200 µm'],1,'Voxel = Pixel / M = 200 / 5 = 40 µm.'],
+['Wie sieht eine typische Gaspore aus?',['Rund mit glatten Wänden','Zerklüftet und schwammartig','Heller als Aluminium','Als feine Linie'],0,'Gas formt runde Blasen – hohe Sphärizität.'],
+['Wo entstehen Schwindungslunker bevorzugt?',['An dünnen Wänden','An Materialanhäufungen, die zuletzt erstarren','Nur an der Oberfläche','Im Sandkern'],1,'Hot Spots erstarren zuletzt und werden nicht mehr nachgespeist.'],
+['Was verursacht Ringartefakte?',['Defekte oder schlecht kalibrierte Detektorpixel','Zu hohe Spannung','Zu viele Projektionen','Ein zu kleiner Brennfleck'],0,'Ein fehlerhafter Pixel erzeugt in jeder Projektion den gleichen Fehler → Kreis.'],
+['Die Bauteilmitte erscheint dunkler als der Rand (Cupping). Ursache?',['Strahlaufhärtung','Ringartefakt','Zu viel Vorfilter','Bewegung'],0,'Weiche Photonen werden zuerst geschluckt, das Spektrum wird härter.'],
+['Du verdoppelst den Abstand zur Quelle. Was passiert mit der Dosisleistung?',['Halbiert sich','Nur noch ein Viertel','Bleibt gleich','Verdoppelt sich'],1,'Abstandsquadratgesetz: (1/2)² = 1/4.'],
+['Grenzwert der effektiven Dosis für beruflich exponierte Personen pro Jahr (DE)?',['1 mSv','6 mSv','20 mSv','100 mSv'],2,'20 mSv pro Kalenderjahr laut Strahlenschutzgesetz.'],
+['Strahlt eine ausgeschaltete Röntgenröhre noch?',['Ja, wie eine radioaktive Quelle','Nein, nur bei anliegender Hochspannung','Ja, noch einige Stunden','Nur wenn sie heiß ist'],1,'Ohne Hochspannung keine Röntgenstrahlung.'],
+['Welcher Algorithmus ist Standard bei Kegelstrahl-CT?',['Feldkamp (FDK)','Dijkstra','Quicksort','Kalman-Filter'],0,'Feldkamp, Davis und Kress, 1984.'],
+['Warum erscheinen Eisen-Einschlüsse im Aluminium hell?',['Höhere Dichte und Ordnungszahl → stärkere Schwächung','Eisen leuchtet selbst','Geringere Dichte','Die Software markiert sie'],0,'Hoher Schwächungskoeffizient = hoher Grauwert.'],
+['Wer baute den ersten klinischen CT?',['Godfrey Hounsfield','Wilhelm Röntgen','Lee Feldkamp','Thomas Edison'],0,'Hounsfield bei EMI, erster Patientenscan 1971.'],
+['Was bedeutet ISO-50 bei der Oberflächenbestimmung?',['Schwelle in der Mitte zwischen Luft- und Materialgrauwert','Eine Norm für Röntgenröhren','50 kV Spannung','50 % Porosität'],0,'Einfachste Methode – lokal adaptive Verfahren sind genauer.'],
+['Ab welcher Größe sind Defekte ungefähr sicher erkennbar?',['ca. 2–3 Voxel','0,1 Voxel','1 Pixel des Detektors','erst ab 50 Voxel'],0,'Kleinere Defekte gehen im Teilvolumeneffekt und Rauschen unter.'],
+['Welchen Hounsfield-Wert hat Wasser?',['−1000 HU','0 HU','+1000 HU','100 HU'],1,'Wasser ist der Nullpunkt, Luft liegt bei −1000 HU.'],
+['Welcher Effekt dominiert bei Aluminium oberhalb von ca. 50 keV?',['Compton-Streuung','Photoeffekt','Paarbildung','Kernspaltung'],0,'Darum ist Streustrahlung bei Alu-Guss ein Thema.'],
+['Was bewirkt ein Kupfer-Vorfilter?',['Er schluckt weiche Strahlung und verringert die Strahlaufhärtung','Er erhöht die Maximalenergie','Er verkleinert den Brennfleck','Er macht das Bild heller'],0,'Kosten: weniger Intensität.']
+];
+EXTRA.quiz=(ex)=>{
+  let qs,i,pts;
+  function start(){qs=QZ.slice().sort(()=>Math.random()-.5).slice(0,10);i=0;pts=0;show();}
+  function show(){
+    if(i>=10){if(pts>store.best){store.best=pts;save();}
+      const col=pts>=8?C.gr:pts>=5?C.gd:C.rd;
+      ex.innerHTML=`<div class="panel fx" style="text-align:center;padding:28px 16px"><div class="sub">ERGEBNIS</div><div class="mono" style="font-size:56px;font-weight:800;color:${col};text-shadow:0 0 30px ${col}">${pts}/10</div><p style="color:var(--mut);margin:6px 0 16px">${pts>=8?'Stark! Du bist ein echter CT-Profi.':pts>=5?'Gut! Ein paar Lernkarten noch einmal ansehen.':'Kein Problem – die Lernkarten helfen dir weiter.'}</p><div class="pills" style="justify-content:center"><span class="pill" style="--ac:${C.gd}">BESTWERT ${store.best}/10</span></div><button class="btn" id="again" style="margin-top:14px">↺ NEUE RUNDE</button></div>`;
+      document.getElementById('again').onclick=start;return;}
+    const q=qs[i];
+    ex.innerHTML=`<div class="panel fx"><div class="row" style="display:flex;justify-content:space-between" class="sub"><span class="sub">FRAGE ${i+1} / 10</span><span class="sub" style="color:${C.gr}">${pts} PUNKTE</span></div><div class="bar" style="margin:8px 0 16px"><i style="width:${i*10}%"></i></div>
+    <h3 style="font-family:Inter;text-transform:none;letter-spacing:0;font-size:18px;color:var(--tx);margin-bottom:14px;font-weight:700">${q[0]}</h3>
+    ${q[1].map((o,k)=>`<button class="qopt" data-k="${k}"><span class="mono" style="color:var(--ac);font-weight:800;margin-right:8px">${'ABCD'[k]}</span>${o}</button>`).join('')}<div id="qf"></div></div>`;
+    ex.querySelectorAll('.qopt').forEach(b=>b.onclick=()=>{
+      if(ex.querySelector('.qopt.ok'))return;const k=+b.dataset.k;const ok=k===q[2];if(ok)pts++;
+      ex.querySelectorAll('.qopt')[q[2]].classList.add('ok');if(!ok)b.classList.add('no');
+      document.getElementById('qf').innerHTML=`<div class="fb" style="border-color:${ok?C.gr:C.rd}"><b style="color:${ok?C.gr:C.rd}">${ok?'✓ RICHTIG':'✗ FALSCH'}</b> – ${q[3]}</div><button class="btn" style="margin-top:10px;width:100%" id="qn">${i<9?'NÄCHSTE FRAGE ›':'ERGEBNIS ANZEIGEN ›'}</button>`;
+      document.getElementById('qn').onclick=()=>{i++;show();};
+    });
+  }
+  start();
+};
+
+/* ---- Lexikon ---- */
+const LEX=[
+['Anode','Positiver Pol der Röhre (meist Wolfram), auf den die Elektronen treffen – hier entsteht die Strahlung.'],
+['Brennfleck','Fläche auf der Anode, von der die Strahlung ausgeht. Je kleiner, desto schärfer das Bild.'],
+['Bremsstrahlung','Kontinuierliches Spektrum durch Abbremsen der Elektronen im Feld der Atomkerne.'],
+['Charakteristische Strahlung','Scharfe Spektrallinien, typisch für das Anodenmaterial (Wolfram Kα ≈ 59 keV).'],
+['Compton-Effekt','Photon wird gestreut und verliert dabei einen Teil seiner Energie – Ursache für Streustrahlung.'],
+['Cupping','Schalenförmiges Grauwertprofil durch Strahlaufhärtung: Mitte dunkler als der Rand.'],
+['Defektanalyse','Automatische Suche nach Poren und Einschlüssen im Volumen, z. B. in VGStudio MAX.'],
+['FDD','Abstand Fokus–Detektor (Focus Detector Distance).'],
+['FDK / Feldkamp','Standardalgorithmus zur Rekonstruktion bei Kegelstrahl-CT (1984).'],
+['Flachdetektor','Detektor aus Szintillator und Pixelmatrix, wandelt Röntgenstrahlung in ein digitales Bild.'],
+['FOD','Abstand Fokus–Objekt (Focus Object Distance). Bestimmt mit FDD die Vergrößerung.'],
+['Gasporosität','Runde, glattwandige Hohlräume durch eingeschlossenes Gas.'],
+['Gray (Gy)','Einheit der Energiedosis: 1 Gy = 1 Joule pro Kilogramm.'],
+['Halbwertsdicke','Materialdicke, nach der die Intensität auf die Hälfte gesunken ist.'],
+['Helix-CT','Bauteil bewegt sich während der Drehung in Achsrichtung – vermeidet Kegelstrahlartefakte.'],
+['Hounsfield-Einheit (HU)','Medizinische Grauwertskala: Luft −1000, Wasser 0.'],
+['ISO-50','Oberflächenschwelle genau zwischen Luft- und Materialgrauwert.'],
+['Kalibrierung (Hell/Dunkel)','Aufnahme mit und ohne Strahlung, um alle Detektorpixel anzugleichen.'],
+['Kegelstrahl','Kegelförmiges Strahlenbündel auf einen Flachdetektor – ganzes Volumen in einer Umdrehung.'],
+['Kernbruch','Gebrochener Sandkern; Metall fließt in den Kanal und bildet eine Materialbrücke.'],
+['Kathode','Negativer Pol mit Glühwendel, der die Elektronen aussendet.'],
+['Kontrast-Rausch-Verhältnis (CNR)','Wie gut sich ein Merkmal vom Rauschen abhebt – entscheidend für die Porenerkennung.'],
+['Lambert-Beer-Gesetz','I = I₀ · e^(−μ·d): exponentielle Schwächung der Strahlung im Material.'],
+['Lunker','Hohlraum durch Volumenschwund bei der Erstarrung, meist zerklüftet.'],
+['Mikrofokusröhre','Röhre mit Brennfleck im µm-Bereich für hochauflösende Scans.'],
+['Photoeffekt','Photon wird vollständig absorbiert – liefert den Materialkontrast.'],
+['Projektion','Einzelnes Röntgenbild aus einem bestimmten Drehwinkel.'],
+['Rampenfilter','Filter der gefilterten Rückprojektion, entfernt die Unschärfe.'],
+['Registrierung','Ausrichten des Scans auf das CAD-Modell (Best-Fit, 3-2-1, RPS).'],
+['Ringartefakt','Kreisförmiger Bildfehler durch defekte Detektorpixel.'],
+['ROI','Region of Interest – ausgewählter Bereich für Scan oder Auswertung.'],
+['Rückprojektion','Messwerte entlang ihres Strahls über das Bild zurückverteilen.'],
+['Sievert (Sv)','Einheit der effektiven Dosis – berücksichtigt die biologische Wirkung.'],
+['Sinogramm','Alle Projektionen untereinander – jeder Punkt erzeugt eine Sinuskurve.'],
+['Soll-Ist-Vergleich','Farbiger Vergleich des gescannten Bauteils mit dem CAD-Modell.'],
+['Sphärizität','Maß dafür, wie kugelförmig ein Defekt ist (1 = perfekte Kugel).'],
+['Strahlaufhärtung','Mittlere Photonenenergie steigt beim Durchgang durch Material – führt zu Cupping.'],
+['Teilvolumeneffekt','Voxel enthält zwei Materialien und bekommt einen Mischgrauwert.'],
+['Vergrößerung','M = FDD / FOD.'],
+['Vorfilter','Metallblech vor der Röhre, das weiche Strahlung herausfiltert.'],
+['Voxel','3D-Bildpunkt des rekonstruierten Volumens.'],
+['Wanddickenanalyse','Farbige Darstellung der Materialstärke, z. B. mit Strahl- oder Kugelmethode.']
+];
+EXTRA.lexikon=(ex)=>{
+  ex.innerHTML=`<input class="search fx" id="ls" placeholder="Begriff suchen …"><div class="sub" id="lc" style="margin-bottom:10px"></div><div id="ll"></div>`;
+  function f(){const q=document.getElementById('ls').value.toLowerCase().trim();const r=LEX.filter(l=>!q||l[0].toLowerCase().includes(q)||l[1].toLowerCase().includes(q));
+    document.getElementById('lc').textContent=r.length+' BEGRIFFE';
+    document.getElementById('ll').innerHTML=r.map((l,i)=>`<div class="lex fx" style="--i:${Math.min(i,12)}"><b>${l[0]}</b><p>${l[1]}</p></div>`).join('');}
+  document.getElementById('ls').oninput=f;f();
+};
+
+render();
+if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
+</script>
+</body>
+</html>
