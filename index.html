@@ -294,6 +294,72 @@ S.lexikon={t:'Lexikon',c:'or',tag:'NACHSCHLAGEN',d:'Alle Fachbegriffe von A bis 
 
 const ORDER=['grundlagen','wechsel','ct','labor','industrie','detektiv','artefakte','schutz','geschichte','quiz','lexikon'];
 const WIDE={labor:1,detektiv:1};
+S.detektor={t:'Detektor & Bildqualität',c:'li',tag:'MODUL 07',d:'Szintillator, Belichtung, Mittelung, Binning, Rauschen – mit Live-Rechner für die Bildqualität.',
+items:[
+['Aufbau eines Flachdetektors','Szintillator + Pixelmatrix',`<p>Röntgenstrahlung lässt sich nicht direkt „fotografieren“. Deshalb wandelt ein <b>Szintillator</b> sie zuerst in sichtbares Licht um, z. B. nadelförmiges <b>Cäsiumiodid (CsI)</b> oder <b>Gadoliniumoxysulfid (GOS)</b>.</p><p>Darunter liegt eine Matrix aus <b>Fotodioden</b> (amorphes Silizium oder CMOS), die das Licht in ein elektrisches Signal umwandelt.</p><table class="t"><tr><th>Typische Werte</th><th></th></tr><tr><td>Pixelgröße</td><td>ca. 75–200 µm</td></tr><tr><td>Pixelanzahl</td><td>ca. 1000 bis 4000 je Seite</td></tr><tr><td>Graustufen</td><td>meist 16 Bit (0–65.535)</td></tr></table><div class="box b"><div class="lbl">Alternative</div><b>Zeilendetektoren</b> messen nur eine Zeile – langsamer, aber mit sehr wenig Streustrahlung.</div>`],
+['Belichtungszeit & Mittelung','Mehr Photonen = weniger Rauschen',`<p>Das Rauschen kommt von der Zufälligkeit der Photonen. Das Signal-Rausch-Verhältnis wächst mit der <b>Wurzel</b> der Photonenzahl:</p><div class="formula">SNR ∝ √(Photonen)</div><ul><li>Doppelte Belichtungszeit → SNR × 1,41</li><li>Vierfache Belichtung oder 4-fache Mittelung → SNR × 2</li><li>Die Scanzeit steigt dabei <b>linear</b> mit</li></ul><div class="box g"><div class="lbl">Praxis</div>Erst die Belichtung so einstellen, dass der Detektor gut ausgesteuert ist – dann bei Bedarf mitteln.</div>`],
+['Binning','Pixel zusammenfassen',`<p>Beim <b>2×2-Binning</b> werden vier Pixel zu einem zusammengefasst.</p><ul><li><b>Vorteil:</b> 4-faches Signal pro Pixel → SNR × 2, schnelleres Auslesen, kleinere Datenmengen</li><li><b>Nachteil:</b> doppelte Pixelgröße → halbe Auflösung</li></ul><p>Sinnvoll für große Bauteile, bei denen die Voxelgröße sowieso grob ist.</p>`],
+['Aussteuerung & Sättigung','Nicht zu dunkel, nicht zu hell',`<p>Jeder Detektorpixel hat einen Maximalwert. Wird er erreicht, ist der Pixel <b>gesättigt</b> – alles darüber ist abgeschnitten.</p><ul><li>Im <b>Bauteil</b> darf nichts gesättigt sein, sonst gehen Informationen verloren</li><li>An der <b>dicksten Stelle</b> sollte noch genug Signal über dem Rauschen ankommen</li><li>Kontrolle über das <b>Histogramm</b> des Projektionsbildes</li></ul>`],
+['Kalibrierung: Gain, Offset, Defektpixel','Damit jeder Pixel gleich misst',`<ul><li><b>Offset (Dunkelbild):</b> Signal ohne Strahlung – wird abgezogen</li><li><b>Gain (Hellbild):</b> Bild mit Strahlung ohne Bauteil – gleicht unterschiedliche Empfindlichkeiten aus</li><li><b>Defektpixel-Karte:</b> tote oder überempfindliche Pixel werden aus Nachbarn berechnet</li></ul><div class="box r"><div class="lbl">Wichtig</div>Kalibrierung mit denselben kV, Filter und Belichtung wie der Scan – sonst drohen <b>Ringartefakte</b>.</div>`],
+['SNR und CNR','Zwei Zahlen für die Bildqualität',`<div class="formula">SNR = Signal / Rauschen</div><div class="formula">CNR = |Grauwert Material − Grauwert Pore| / Rauschen</div><p>Für die Porenerkennung ist das <b>CNR</b> entscheidend: Eine Pore ist nur sichtbar, wenn sie sich deutlich vom Rauschen abhebt. Als grobe Faustregel gilt ein CNR von mindestens 3–5 für sichere Erkennung.</p>`],
+['Was die Auflösung begrenzt','Die schwächste Stelle zählt',`<ul><li><b>Voxelgröße</b> (Detektorpixel / Vergrößerung)</li><li><b>Brennfleck</b> (geometrische Unschärfe)</li><li><b>Detektor-Unschärfe</b> (Licht streut im Szintillator)</li><li><b>Bewegung &amp; Drift</b> während des Scans</li><li><b>Rekonstruktionsfilter</b> (glättend oder scharf)</li></ul><div class="box g"><div class="lbl">Merke</div>Kleine Voxel bringen nichts, wenn der Brennfleck größer ist – die Unschärfe bestimmt dann das Ergebnis.</div>`],
+['Nachleuchten (Lag)','Das Gedächtnis des Detektors',`<p>Der Szintillator leuchtet nach einem Bild noch kurz nach. Bei sehr kurzen Belichtungszeiten bleibt ein schwacher „Geist“ des vorherigen Bildes übrig.</p><p>Gegenmittel: etwas längere Belichtung, Bilder nach dem Drehen verwerfen (Skip-Frames), Stop-and-Go statt kontinuierlicher Drehung.</p>`]
+]};
+
+S.assistent={t:'Parameter-Assistent',c:'gr',tag:'PRAXIS',d:'Bauteil wählen und Richtwerte für kV, Fokus 0,4 / 1,0 mm, Vorfilter, Voxel und Projektionen bekommen – mit Begründung.',
+items:[
+['So rechnet der Assistent','Die Logik hinter den Richtwerten',`<ul><li><b>Spannung:</b> An der dicksten Stelle sollen noch ca. 3 % der Strahlung durchkommen. Daraus folgt die nötige mittlere Energie und daraus die kV.</li><li><b>Voxelgröße:</b> Das Bauteil muss beim Drehen komplett ins Messfeld passen.</li><li><b>Brennfleck:</b> 1,0 mm, wenn viel Leistung nötig ist und die Unschärfe trotzdem zur Voxelgröße passt – sonst 0,4 mm.</li><li><b>Vorfilter:</b> je höher die kV, desto dicker der Kupferfilter</li><li><b>Projektionen:</b> abhängig von Detektorbreite und Ziel (Porosität oder Messung)</li></ul>`],
+['Faustregeln zum Einrichten','Kurz und praxisnah',`<ul><li>So viel kV wie nötig, so wenig wie möglich – zu hohe kV kosten Kontrast</li><li>Strom erst erhöhen, wenn die kV passen</li><li>Bauteil möglichst <b>schräg</b> stellen – kürzere Wege, weniger Kegelstrahlartefakte</li><li>Halterung aus Schaumstoff oder Kunststoff, möglichst aus dem Strahl</li><li>Röhre vor dem Scan aufwärmen (Drift)</li></ul>`],
+['Kontrolle am Projektionsbild','Bevor du auf „Start“ drückst',`<ul><li>Bauteil in <b>allen</b> Drehwinkeln vollständig im Bild? (sonst Abschneide-Artefakte)</li><li>Keine Sättigung im Bauteil</li><li>Dickste Stelle noch deutlich über dem Rauschen</li><li>Freistrahl an mindestens einer Seite sichtbar (hilft der Rekonstruktion)</li></ul>`],
+['Typische Fehler beim Einrichten','Und wie man sie vermeidet',`<table class="t"><tr><th>Fehler</th><th>Folge</th></tr><tr><td>Bauteil ragt aus dem Messfeld</td><td>Abschneide-Artefakte, falsche Grauwerte</td></tr><tr><td>Zu wenig Projektionen</td><td>Streifen, feine Poren verschwinden</td></tr><tr><td>Fokus zu groß für die Voxelgröße</td><td>unscharfe Kanten, kleine Poren unsichtbar</td></tr><tr><td>Bauteil nicht fest</td><td>Bewegungsartefakte, Doppelkanten</td></tr><tr><td>Kalibrierung veraltet</td><td>Ringartefakte</td></tr></table>`]
+]};
+
+S.messtechnik={t:'Messtechnik',c:'bl',tag:'MODUL 08',d:'CT als Messgerät: Rückführung, VDI/VDE 2630, Temperatur, Messunsicherheit – mit zwei Rechnern.',
+items:[
+['Rückführung der Voxelgröße','Warum die Skalierung stimmen muss',`<p>Die Voxelgröße ergibt sich aus der Geometrie (Abstände). Schon kleine Fehler bei FOD oder FDD verfälschen <b>alle</b> Längen im Volumen.</p><p>Deshalb wird mit einem <b>kalibrierten Prüfkörper</b> korrigiert, z. B. einem Kugelstab oder einer Kugelplatte, deren Kugelabstände genau bekannt sind.</p><div class="box b"><div class="lbl">Beispiel</div>Voxelgröße um 0,1 % falsch → bei 400 mm Länge ein Fehler von 0,4 mm!</div>`],
+['Kenngrößen nach VDI/VDE 2630','Wie gut misst die Anlage?',`<p>Die Richtlinienreihe VDI/VDE 2630 beschreibt u. a., wie die Genauigkeit einer CT-Messanlage geprüft wird (Blatt 1.3). Typische Kenngrößen:</p><table class="t"><tr><th>Kenngröße</th><th>Bedeutung</th></tr><tr><td>Antastabweichung Form (PF)</td><td>wie „rund“ wird eine ideale Kugel gemessen</td></tr><tr><td>Antastabweichung Größe (PS)</td><td>Fehler im Kugeldurchmesser</td></tr><tr><td>Kugelabstandsabweichung (SD)</td><td>Fehler im Abstand zweier Kugelmittelpunkte</td></tr><tr><td>Längenmessabweichung (E)</td><td>Fehler bei Längenmessungen</td></tr></table><p>Der Hersteller gibt dafür Grenzwerte (MPE) an.</p>`],
+['Einflussgrößen','Was alles das Messergebnis verändert',`<ul><li><b>Gerät:</b> Brennfleckdrift, Achsen, Detektor</li><li><b>Bauteil:</b> Material, Größe, Durchstrahlungslängen, Oberfläche</li><li><b>Umgebung:</b> Temperatur, Schwingungen</li><li><b>Auswertung:</b> Oberflächenbestimmung, Registrierung, Filter</li><li><b>Bediener:</b> Aufspannung, Parameterwahl</li></ul>`],
+['Temperatur','Aluminium dehnt sich deutlich aus',`<div class="formula">ΔL = α · L · ΔT</div><p>Aluminium: <b>α ≈ 23 µm pro Meter und Kelvin</b>. Ein 500-mm-Bauteil, das 2 K wärmer ist, ist schon 23 µm länger.</p><p>Bezugstemperatur für Längenmessungen ist <b>20 °C</b> (ISO 1). Bauteile deshalb vor dem Messen temperieren lassen – frisch aus der Gießerei oder Waschanlage sind sie oft noch warm.</p>`],
+['Messunsicherheit','Kein Messwert ohne Unsicherheit',`<p>Jedes Messergebnis hat eine Unsicherheit. Sie wird meist als <b>erweiterte Messunsicherheit U</b> (k = 2, ca. 95 %) angegeben.</p><div class="box g"><div class="lbl">Goldene Regel</div>Die Messunsicherheit sollte höchstens ca. <b>10–20 % der Toleranz</b> betragen – sonst ist die Messung für dieses Merkmal ungeeignet.</div>`],
+['Prüfmittelfähigkeit','Ist das Messsystem gut genug?',`<ul><li><b>Verfahren 1</b> (Cg/Cgk): Wiederholmessungen an einem Normal, typische Forderung ≥ 1,33</li><li><b>Verfahren 2/3</b>: Wiederhol- und Vergleichspräzision mit mehreren Teilen (und Prüfern)</li><li><b>Attributive Prüfung</b>: Übereinstimmung von Prüfern, z. B. mit Kappa (→ Modul Prüfplanung)</li></ul><div class="box"><div class="lbl">Hinweis</div>Welche Verfahren und Grenzwerte gelten, regeln eure internen Vorgaben.</div>`],
+['Oberfläche & Material','Warum die Kante wandern kann',`<p>Strahlaufhärtung und Streustrahlung verändern die Grauwerte – besonders bei dicken Wänden. Mit einer globalen ISO-50-Schwelle „wandert“ die Oberfläche dann nach innen oder außen.</p><p>Die <b>lokal adaptive</b> Oberflächenbestimmung sucht die Kante an jeder Stelle neu und liefert genauere Maße.</p>`]
+]};
+
+S.vgstudio={t:'VGStudio-Praxis',c:'or',tag:'PRAXIS',d:'Der komplette Auswerte-Ablauf Schritt für Schritt – mit Tipps und den häufigsten Fehlern.',
+items:[
+['Wichtige Einstellungen der Defektanalyse','Was die Ergebnisse am stärksten beeinflusst',`<ul><li><b>Algorithmus:</b> je nach Version z. B. VGEasyPore, VGDefX oder reine Schwelle</li><li><b>Mindestgröße</b> (in Voxeln oder mm³): filtert Rauschen heraus</li><li><b>Wahrscheinlichkeit/Empfindlichkeit:</b> wie sicher ein Defekt sein muss</li><li><b>Analysebereich:</b> ganzes Bauteil, ROI oder Prüfzone</li><li><b>Abstand zur Oberfläche:</b> Poren am Rand richtig erfassen</li></ul><div class="box g"><div class="lbl">Tipp</div>Gleiche Einstellungen als <b>Vorlage</b> speichern – so sind Ergebnisse von Teil zu Teil vergleichbar.</div>`],
+['Ergebnisse richtig lesen','Tabelle, Farben, Histogramm',`<ul><li><b>Farbskala</b> nach Volumen oder Durchmesser – Grenzwerte passend zur Prüfanweisung einstellen</li><li><b>Sphärizität</b> hilft: hoch = Gaspore, niedrig = Lunker</li><li>Großer Defekt am Rand? Prüfen, ob es ein echter Defekt oder ein Oberflächenfehler/Artefakt ist</li><li>Immer stichprobenartig im <b>Schnittbild</b> nachsehen</li></ul>`],
+['Typische Auswertefehler','Und wie man sie erkennt',`<table class="t"><tr><th>Fehler</th><th>Erkennungszeichen</th></tr><tr><td>Rauschen als Poren erkannt</td><td>viele winzige Defekte, gleichmäßig verteilt</td></tr><tr><td>Artefakte als Defekte</td><td>Defekte entlang Streifen oder Ringen</td></tr><tr><td>Schlechte Registrierung</td><td>Soll-Ist zeigt einseitig rot/blau</td></tr><tr><td>Falsche Oberfläche</td><td>Wanddicken überall zu dünn oder zu dick</td></tr></table>`],
+['Daten & Bericht','Nachvollziehbar dokumentieren',`<ul><li>Bauteilnummer / DMC, Datum, Anlage, Scanparameter</li><li>Schnittbilder der kritischen Stellen mit Maßstab</li><li>Defekttabelle mit Grenzwerten und Bewertung</li><li>Projekt speichern, damit die Auswertung später wiederholbar ist</li></ul>`]
+]};
+
+S.bauteil3d={t:'3D-Bauteil',c:'li',tag:'INTERAKTIV 3D',d:'Ein Gussteil-Ausschnitt mit Poren zum Drehen – schiebe eine Schnittebene durch und sieh den CT-Schnitt live.',tool:true,items:[]};
+
+S.pruefplanung={t:'Prüfplanung & Bewertung',c:'gd',tag:'MODUL 09',d:'Attributiv prüfen, Prüfzonen, Grenzmuster, Kappa – mit Bewertungs-Simulator und Kappa-Rechner.',
+items:[
+['Attributiv oder variabel?','Zwei Arten zu prüfen',`<ul><li><b>Attributiv:</b> Ergebnis ist eine Kategorie – i.O. / n.i.O. (z. B. „Pore zu groß“)</li><li><b>Variabel:</b> Ergebnis ist ein Zahlenwert mit Toleranz (z. B. Wanddicke 3,2 mm)</li></ul><p>Porositätsprüfung ist oft attributiv, Soll-Ist und Wanddicke sind variabel.</p>`],
+['Prüfzonen & Grenzwerte','Nicht jede Pore ist gleich schlimm',`<p>Eine Pore in einer <b>Dichtfläche</b> oder einem Gewinde ist kritisch, dieselbe Pore in einer dicken, unbearbeiteten Wand oft harmlos. Deshalb werden <b>Prüfzonen</b> mit eigenen Grenzwerten festgelegt (z. B. nach BDG-Richtlinie P 202 in der Zeichnung).</p><ul><li>Maximale Porengröße (Durchmesser oder Volumen)</li><li>Mindestabstand zur (bearbeiteten) Oberfläche</li><li>Maximaler Porenanteil in einem Bereich</li></ul>`],
+['Grenzmuster & Referenzteile','Gemeinsames Verständnis schaffen',`<p><b>Grenzmuster</b> sind Teile oder Bilder, die genau an der Grenze zwischen i.O. und n.i.O. liegen. Sie helfen allen Prüfern, gleich zu entscheiden – besonders bei attributiven Merkmalen.</p>`],
+['Prüferübereinstimmung (Kappa)','Entscheiden alle gleich?',`<p>Bei attributiven Prüfungen wird geprüft, ob verschiedene Prüfer (oder Prüfer und Referenz) zum gleichen Urteil kommen. Ein gängiges Maß ist <b>Cohens Kappa</b>:</p><div class="formula">κ = (p₀ − pₑ) / (1 − pₑ)</div><p>p₀ = beobachtete Übereinstimmung, pₑ = zufällig erwartete Übereinstimmung. Häufige Faustregel: <b>κ ≥ 0,75 gut</b>, 0,4–0,75 mäßig, darunter schlecht.</p>`],
+['Prüfumfang','100 %, Stichprobe, Erstmuster',`<ul><li><b>Erstmuster / Anlauf:</b> intensive Prüfung, oft vollständige Analyse</li><li><b>Serie:</b> Stichprobe nach Prüfplan oder 100 % bei Inline-CT</li><li><b>Auffälligkeiten:</b> Prüfumfang erhöhen, bis die Ursache behoben ist</li></ul>`],
+['Rückmeldung an die Gießerei','Damit Fehler nicht wiederkommen',`<ul><li><b>Wo</b> liegen die Defekte? (Bild mit Lage, Prüfzone)</li><li><b>Welche Art?</b> Gas, Lunker, Kernbruch …</li><li><b>Wie oft?</b> Trend über die Zeit, Pareto der häufigsten Fehler</li><li>Gleiche Bauteilposition bei mehreren Teilen = systematische Ursache (Form, Kern, Temperatur)</li></ul>`]
+]};
+
+S.modern={t:'Moderne CT',c:'bl',tag:'MODUL 10',d:'Inline-CT, KI-Fehlererkennung, Dual-Energy, Helix, Laminographie und photonenzählende Detektoren.',
+items:[
+['Inline-CT','CT im Takt der Fertigung',`<p>Die CT steht direkt in der Linie: Roboter legen Bauteile ein, gescannt wird in Sekunden bis wenigen Minuten, die Auswertung läuft automatisch. So kann jedes Teil oder eine hohe Stichprobe geprüft werden.</p><ul><li>Schnelle Scans mit weniger Projektionen</li><li>Automatische Registrierung und Defektanalyse</li><li>Ergebnis direkt an die Fertigungssteuerung</li></ul>`],
+['KI-Fehlererkennung','Deep Learning findet Poren',`<p>Neuronale Netze werden mit vielen markierten CT-Daten trainiert und erkennen danach Defekte auch bei Rauschen und Artefakten.</p><div class="box gr"><div class="lbl">Vorteile</div>Weniger Fehlalarme, schneller, auch bei schwierigen Daten</div><div class="box r"><div class="lbl">Grenzen</div>Die KI erkennt nur, was in den Trainingsdaten vorkam. Neue Fehlerarten oder andere Bauteile brauchen neues Training – und Ergebnisse müssen nachvollziehbar bleiben.</div>`],
+['Dual-Energy-CT','Zwei Spektren, mehr Information',`<p>Das Bauteil wird mit zwei verschiedenen Spektren aufgenommen (z. B. niedrige und hohe kV). Weil Materialien je nach Energie unterschiedlich schwächen, lassen sich Materialien besser <b>trennen</b> – z. B. Kunststoff und Metall in Mehrmaterialbauteilen.</p>`],
+['Helix-CT','Schraubenförmige Bahn',`<p>Das Bauteil dreht sich und fährt gleichzeitig nach oben. Die Strahlung beschreibt eine Schraubenbahn um das Bauteil.</p><ul><li>Keine Kegelstrahlartefakte</li><li>Ideal für <b>lange</b> Bauteile</li></ul>`],
+['Laminographie','Für flache Bauteile',`<p>Bei flachen, großen Bauteilen (z. B. Leiterplatten, Batteriemodule) wäre die Durchstrahlung längs der Fläche viel zu lang. Bei der Laminographie wird schräg durchstrahlt – das Bauteil muss sich nicht komplett drehen.</p>`],
+['Photonenzählende Detektoren','Jedes Photon einzeln',`<p>Statt Licht zu sammeln, zählen diese Detektoren jedes Photon einzeln und messen seine <b>Energie</b>. Das ermöglicht spektrale CT, weniger Rauschen und bessere Materialtrennung. In der Medizin seit 2021 im klinischen Einsatz, in der Industrie im Kommen.</p>`],
+['Schnelle & KI-Rekonstruktion','Mit weniger Projektionen auskommen',`<p>Iterative Verfahren und KI-gestützte Rekonstruktion liefern auch mit wenigen Projektionen brauchbare Bilder – wichtig für Inline-CT mit kurzer Taktzeit.</p>`],
+['Simulation & digitaler Zwilling','Scannen am Computer',`<p>CT-Simulationen (z. B. das Programm aRTist der BAM) berechnen vorab, wie ein Bauteil im CT aussehen wird. So lassen sich Parameter und Aufspannung planen, bevor die Anlage belegt wird.</p>`]
+]};
+
+ORDER.length=0;ORDER.push('grundlagen','wechsel','ct','labor','detektor','assistent','industrie','vgstudio','bauteil3d','detektiv','artefakte','messtechnik','pruefplanung','schutz','modern','geschichte','quiz','lexikon');
+Object.assign(WIDE,{assistent:1,bauteil3d:1});
+
 
 const FACTS=[
 'Das erste Röntgenbild eines Menschen zeigt die Hand von Anna Bertha Röntgen – mit Ehering, aufgenommen am 22. Dezember 1895.',
@@ -345,7 +411,7 @@ function home(){
     const s=S[id];const p=progressOf(id);
     let foot;
     if(p){foot=`<span>${p[0]}/${p[1]}${p[0]===p[1]?' <span class="check">✓</span>':''}</span><div class="bar"><i style="width:${p[0]/p[1]*100}%"></i></div>`;}
-    else if(id==='quiz'){foot=`<span>BESTWERT ${store.best}/10</span><div class="bar"><i style="width:${store.best*10}%"></i></div>`;}
+    else if(id==='quiz'){const bq=Math.max(0,...Object.values(store.bests||{}));foot=`<span>${QZ.length} FRAGEN · BEST ${bq} %</span><div class="bar"><i style="width:${bq}%"></i></div>`;}
     else if(id==='lexikon'){foot=`<span>${LEX.length} BEGRIFFE</span><div class="bar"><i style="width:100%"></i></div>`;}
     else if(id==='geschichte'){foot=`<span>${TL.length} MEILENSTEINE</span><div class="bar"><i style="width:100%"></i></div>`;}
     else foot=`<span>INTERAKTIV</span><div class="bar"><i style="width:100%"></i></div>`;
@@ -879,6 +945,398 @@ EXTRA.lexikon=(ex)=>{
     document.getElementById('ll').innerHTML=r.map((l,i)=>`<div class="lex fx" style="--i:${Math.min(i,12)}"><b>${l[0]}</b><p>${l[1]}</p></div>`).join('');}
   document.getElementById('ls').oninput=f;f();
 };
+
+/* ============== Erweiterung: interaktive Module ============== */
+function segBind(id,fn){document.querySelectorAll('#'+id+' button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#'+id+' button').forEach(q=>q.classList.remove('on'));b.classList.add('on');fn(b.dataset.v);});}
+
+/* ---- Detektor: Bildqualität ---- */
+EXTRA.detektor=(ex)=>{
+  ex.innerHTML=`<div class="sec fx" style="--i:2">Live · Bildqualität</div>
+  <div class="panel fx" style="--i:2"><h3>Rauschen, Belichtung und Scanzeit</h3><div class="hint">Ein CT-Schnitt mit Poren von 0,3 bis 1,5 mm. Ändere die Einstellungen und vergleiche, wie gut die kleinen Poren sichtbar sind.</div>
+  <div class="cv" style="max-width:360px;margin:0 auto"><canvas id="dq" width="160" height="160" style="aspect-ratio:1/1;height:auto"></canvas></div>
+  <div class="kv"><div><span>SNR relativ</span><b id="q1"></b></div><div><span>Zeit je Projektion</span><b id="q2"></b></div><div><span>Scanzeit</span><b id="q3"></b></div><div><span>Kleinste sichtbare Pore</span><b id="q4"></b></div></div>
+  <div class="ctl"><div><label>Belichtungszeit <b id="tv"></b></label><input type="range" id="tt" min="100" max="2000" step="50" value="500"></div>
+  <div><label>Mittelung (Bilder je Projektion)</label><div class="seg" id="av"><button data-v="1" class="on">1×</button><button data-v="2">2×</button><button data-v="4">4×</button><button data-v="8">8×</button><button data-v="16">16×</button></div></div>
+  <div><label>Binning</label><div class="seg" id="bn"><button data-v="1" class="on">1×1</button><button data-v="2">2×2</button></div></div>
+  <div><label>Projektionen <b id="pv"></b></label><input type="range" id="pp" min="400" max="3000" step="100" value="1500"></div></div></div>`;
+  let avg=1,bin=1;const cv=document.getElementById('dq'),x=cv.getContext('2d');const N=160;
+  const pores=[[40,45,1.5],[100,40,1.0],[130,90,0.7],[60,110,0.5],[110,125,0.4],[30,140,0.3],[85,80,0.8]];
+  const base=new Float32Array(N*N);
+  for(let j=0;j<N;j++)for(let i=0;i<N;i++){let v=0.62;for(const p of pores){const r=p[2]*5;const d=Math.hypot(i-p[0],j-p[1]);if(d<r+1){const w=Math.max(0,Math.min(1,r+0.5-d));v=v*(1-w)+0.08*w;}}base[j*N+i]=v;}
+  function draw(){
+    const t=+document.getElementById('tt').value,np=+document.getElementById('pp').value;
+    document.getElementById('tv').textContent=t+' ms';document.getElementById('pv').textContent=np;
+    const rel=(t/500)*avg*bin*bin;const snr=Math.sqrt(rel);const sigma=0.16/snr;
+    const im=x.createImageData(N,N);
+    const val=(i,j)=>{if(bin===1)return base[j*N+i];const a=i-(i%2),b=j-(j%2);return (base[b*N+a]+base[b*N+a+1]+base[(b+1)*N+a]+base[(b+1)*N+a+1])/4;};
+    const nz=new Float32Array(N*N);for(let j=0;j<N;j+=bin)for(let i=0;i<N;i+=bin){const g=gauss()*sigma;for(let b=0;b<bin;b++)for(let a=0;a<bin;a++)nz[(j+b)*N+i+a]=g;}
+    for(let k=0;k<N*N;k++){const i=k%N,j=(k/N)|0;let v=val(i,j)+nz[k];v=Math.max(0,Math.min(1,v))*255;im.data[k*4]=v;im.data[k*4+1]=Math.min(255,v+3);im.data[k*4+2]=Math.min(255,v+8);im.data[k*4+3]=255;}
+    x.putImageData(im,0,0);
+    // kleinste sichtbare Pore grob: CNR*Flächenfaktor >= 5
+    let vis='> 1,5 mm';for(const d of [0.3,0.4,0.5,0.7,0.8,1.0,1.5]){const px=d*5/bin;const cnr=(0.54/sigma)*Math.min(1,px/2)*Math.sqrt(Math.max(1,px));if(cnr>=4){vis=fmt(d,1)+' mm';break;}}
+    const tp=t*avg/1000;const total=np*tp;
+    document.getElementById('q1').textContent='× '+fmt(snr,2);
+    document.getElementById('q2').textContent=fmt(tp,2)+' s';
+    document.getElementById('q3').textContent=total<3600?fmt(total/60,0)+' min':fmt(total/3600,1)+' h';
+    document.getElementById('q4').textContent=vis;
+  }
+  document.getElementById('tt').oninput=draw;document.getElementById('pp').oninput=draw;
+  segBind('av',v=>{avg=+v;draw();});segBind('bn',v=>{bin=+v;draw();});draw();
+};
+
+/* ---- Parameter-Assistent ---- */
+EXTRA.assistent=(ex)=>{
+  const P={zk:['ZYLINDERKOPF',450,70],kg:['KURBELGEHÄUSE',500,90],st:['STRUKTURTEIL',350,25],eg:['E-GEHÄUSE',300,15]};
+  ex.innerHTML=`<div class="sec fx" style="--i:2">Assistent · Eure 450-kV-Anlage</div>
+  <div class="panel fx" style="--i:2"><h3>Bauteil &amp; Ziel</h3><div class="hint">Wähle ein Bauteil und passe die Maße an. Der Assistent schlägt Richtwerte vor.</div>
+  <div class="ctl"><div><label>Bauteil</label><div class="seg" id="bt">${Object.entries(P).map(([k,v],i)=>`<button data-v="${k}" class="${i?'':'on'}">${v[0]}</button>`).join('')}</div></div>
+  <div><label>Ziel</label><div class="seg" id="zl"><button data-v="p" class="on">PORENPRÜFUNG</button><button data-v="m">MESSUNG</button></div></div>
+  <div><label>Größte Abmessung (Drehdurchmesser) <b id="sv"></b></label><input type="range" id="sz" min="50" max="700" step="10"></div>
+  <div><label>Dickste Aluminium-Strecke im Strahl <b id="dv"></b></label><input type="range" id="dk" min="5" max="150" step="5"></div>
+  <div class="row2" style="grid-template-columns:1fr 1fr"><div><label class="sub">Detektor Pixel</label><input class="num-in" id="dp" type="number" value="2048"></div><div><label class="sub">Pixelgröße <span style="text-transform:none">(µm)</span></label><input class="num-in" id="dz" type="number" value="200"></div></div></div></div>
+  <div class="panel fx" style="--i:3"><h3>Empfehlung</h3><div class="kv" id="rk"></div><div id="rw"></div>
+  <div class="box g" style="margin-top:12px"><div class="lbl">Wichtig</div>Das sind vereinfachte Richtwerte zum Lernen. Verbindlich sind eure Prüfanweisung und die Erfahrung an der Anlage.</div></div>`;
+  let part='zk',goal='p';
+  const MU=[[60,0.75],[80,0.55],[100,0.46],[150,0.37],[200,0.33],[250,0.30],[300,0.28],[400,0.25],[500,0.23]];
+  function eFor(mu){if(mu>=MU[0][1])return MU[0][0];for(let k=1;k<MU.length;k++){if(mu>=MU[k][1]){const [e0,m0]=MU[k-1],[e1,m1]=MU[k];return e0+(e1-e0)*(m0-mu)/(m0-m1);}}return 600;}
+  function setPart(){const p=P[part];document.getElementById('sz').value=p[1];document.getElementById('dk').value=p[2];}
+  function calc(){
+    const D=+document.getElementById('sz').value,d=+document.getElementById('dk').value,npx=+document.getElementById('dp').value||2048,pit=+document.getElementById('dz').value||200;
+    document.getElementById('sv').textContent=D+' mm';document.getElementById('dv').textContent=d+' mm';
+    const notes=[];
+    const mu=Math.log(1/0.03)/(d/10);const E=eFor(mu);let kv=Math.ceil(E/0.42/10)*10;
+    if(kv>450){notes.push(['rd','Durchstrahlung grenzwertig: Selbst 450 kV reichen rechnerisch kaum. Bauteil schräg stellen, Teilbereiche scannen oder länger belichten.']);kv=450;}
+    kv=Math.max(100,kv);
+    let vox=D*1000/(npx*0.9);let M=pit/vox;
+    if(M<1.05){M=1.05;vox=pit/M;notes.push(['rd',`Das Bauteil (${D} mm) passt nicht komplett ins Messfeld (ca. ${fmt(npx*pit/1000/1.05,0)} mm). Lösung: Messfeld-Erweiterung (z. B. Detektorversatz) oder mehrere Scans.`]);}
+    const ug=f=>f*1000*(M-1)/M;
+    let foc=0.4;if(kv>=300&&ug(1.0)<=1.5*vox)foc=1.0;
+    if(kv>=300&&foc===0.4)notes.push(['gd','Hohe Spannung, aber der 1,0-mm-Fokus wäre zu unscharf für diese Voxelgröße – daher 0,4 mm mit begrenzter Leistung (längere Belichtung einplanen).']);
+    const Pmax=foc<0.5?700:1500;const ma=Math.min(4,Pmax*0.85/kv);
+    const filt=kv<150?'0,5 mm Cu':kv<250?'1 mm Cu':kv<350?'2 mm Cu':'3–4 mm Cu';
+    let proj=Math.round(npx*(goal==='p'?0.75:1.25)/100)*100;
+    const minPore=vox*3/1000;
+    document.getElementById('rk').innerHTML=[['Spannung',kv+' kV'],['Fokus',fmt(foc,1)+' mm'],['Strom',fmt(ma,2)+' mA'],['Leistung',fmt(kv*ma,0)+' W'],['Vorfilter',filt],['Voxelgröße',fmt(vox,0)+' µm'],['Vergrößerung',fmt(M,2)+' ×'],['Projektionen',proj],['Poren sicher ab',fmt(minPore,2)+' mm'],['Unschärfe',fmt(ug(foc),0)+' µm']].map(r=>`<div><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');
+    const why=[['gr',`<b>${kv} kV</b>: Bei ${d} mm Aluminium kommen damit an der dicksten Stelle noch ca. 3 % durch.`],['gr',`<b>Fokus ${fmt(foc,1)} mm</b>: Unschärfe im Bauteil ≈ ${fmt(ug(foc),0)} µm bei ${fmt(vox,0)} µm Voxelgröße.`],['gr',`<b>${proj} Projektionen</b>: ${goal==='p'?'für Porenprüfung ausreichend, Scan bleibt kurz':'für Messungen mehr Projektionen = genauere Kanten'}.`]];
+    document.getElementById('rw').innerHTML=why.concat(notes).map(n=>`<div class="fb" style="border-color:var(--${n[0]})">${n[1]}</div>`).join('');
+  }
+  segBind('bt',v=>{part=v;setPart();calc();});segBind('zl',v=>{goal=v;calc();});
+  ['sz','dk','dp','dz'].forEach(i=>document.getElementById(i).oninput=calc);setPart();calc();
+};
+
+/* ---- Messtechnik: Rechner ---- */
+EXTRA.messtechnik=(ex)=>{
+  ex.innerHTML=`<div class="sec fx" style="--i:2">Rechner · Temperatur &amp; Skalierung</div>
+  <div class="row2"><div class="panel fx" style="--i:2"><h3>Wärmeausdehnung Aluminium</h3><div class="hint">α ≈ 23 µm/(m·K)</div>
+  <div class="ctl"><div><label>Bauteillänge <b id="lv"></b></label><input type="range" id="ll" min="50" max="800" step="10" value="500"></div>
+  <div><label>Temperatur über 20 °C <b id="tv2"></b></label><input type="range" id="dt" min="0" max="15" step="0.5" value="2"></div></div>
+  <div class="kv"><div><span>Längenänderung</span><b id="r1"></b></div></div></div>
+  <div class="panel fx" style="--i:3"><h3>Skalierungsfehler</h3><div class="hint">Wenn die Voxelgröße nicht exakt stimmt …</div>
+  <div class="ctl"><div><label>Fehler der Voxelgröße <b id="ev"></b></label><input type="range" id="ee" min="0" max="0.5" step="0.01" value="0.1"></div>
+  <div><label>Gemessene Länge <b id="mv"></b></label><input type="range" id="ml" min="10" max="800" step="10" value="400"></div></div>
+  <div class="kv"><div><span>Längenfehler</span><b id="r2"></b></div></div></div></div>`;
+  function c(){const L=+document.getElementById('ll').value,T=+document.getElementById('dt').value,e=+document.getElementById('ee').value,m=+document.getElementById('ml').value;
+    document.getElementById('lv').textContent=L+' mm';document.getElementById('tv2').textContent='+'+fmt(T,1)+' K';document.getElementById('ev').textContent=fmt(e,2)+' %';document.getElementById('mv').textContent=m+' mm';
+    document.getElementById('r1').textContent=fmt(23*L/1000*T,1)+' µm';document.getElementById('r2').textContent=fmt(m*e/100*1000,0)+' µm';}
+  ['ll','dt','ee','ml'].forEach(i=>document.getElementById(i).oninput=c);c();
+};
+
+/* ---- VGStudio: Ablauf-Schritte ---- */
+const VGS=[
+['Volumen laden','Rekonstruktion importieren','Volumen öffnen, Voxelgröße und Datentyp (16 Bit) kontrollieren. Bauteilnummer und Scanparameter notieren.','Voxelgröße mit dem Scanprotokoll vergleichen.','Falsche Voxelgröße übernommen → alle Maße falsch skaliert.'],
+['Vorschau & Qualität','Schnittbilder durchsehen','In allen drei Richtungen durch die Schnitte scrollen: Rauschen, Artefakte, Bewegung, abgeschnittene Bereiche?','Fensterung (Kontrast) so einstellen, dass Luft schwarz und Aluminium hellgrau ist.','Artefakte erst bei der Defektanalyse bemerken – dann sind die Ergebnisse unbrauchbar.'],
+['Oberfläche bestimmen','ISO-50 oder lokal adaptiv','Hintergrund- und Materialbereich festlegen und die Oberfläche bestimmen. Für Messungen die erweiterte (lokal adaptive) Variante nutzen.','Startkontur prüfen: Liegt sie sauber auf der Kante?','Halterung oder Schaum mit in der Oberfläche – Registrierung und Wanddicke werden verfälscht.'],
+['Registrieren','Scan und CAD ausrichten','CAD-Modell laden und das Volumen ausrichten: Best-Fit, 3-2-1 oder RPS nach Zeichnungsvorgabe.','Bei Rohteilen Best-Fit nur auf stabile Bereiche – oder nach RPS ausrichten.','Best-Fit über das ganze Teil verschmiert einen Kernversatz.'],
+['Prüfzonen & ROI','Bereiche festlegen','Prüfzonen (z. B. Dichtflächen, Lagergasse, Gewinde) als ROI anlegen – am besten aus dem CAD oder einer Vorlage.','Prüfzonen einmal sauber anlegen und als Vorlage speichern.','Zonen von Hand „ungefähr“ zeichnen – jedes Teil wird anders bewertet.'],
+['Defektanalyse','Poren finden und bewerten','Algorithmus wählen, Mindestgröße und Empfindlichkeit einstellen, Analyse je Prüfzone starten. Ergebnisse nach Grenzwerten einfärben.','Verdächtige Defekte immer im Schnittbild kontrollieren.','Mindestgröße zu klein → Rauschen wird als Porosität gezählt.'],
+['Soll-Ist & Wanddicke','Geometrie prüfen','Soll-Ist-Vergleich mit Toleranz-Farbskala, Wanddickenanalyse (Strahl- oder Kugelmethode) für dünne Bereiche wie Wassermantel.','Farbskala symmetrisch und passend zur Toleranz wählen.','Schlechte Registrierung als Formfehler interpretieren.'],
+['Bericht & Ablage','Dokumentieren','Bilder, Tabellen und Bewertung in den Bericht übernehmen, Projekt speichern und archivieren.','Immer gleiche Ansichten und Vorlagen nutzen – Berichte werden vergleichbar.','Projekt nicht gespeichert – Auswertung später nicht nachvollziehbar.']];
+EXTRA.vgstudio=(ex)=>{
+  let st=0;
+  function r(){const s=VGS[st];
+    ex.innerHTML=`<div class="sec fx" style="--i:2">Ablauf · Schritt ${st+1} von ${VGS.length}</div>
+    <div class="panel fx" style="--i:2"><div class="pills" style="margin-top:0">${VGS.map((v,i)=>`<button class="pill vgd" data-i="${i}" style="--ac:${i===st?'var(--or)':i<st?'var(--gr)':'var(--line)'};${i>st?'color:var(--mut)':''}">${i<st?'✓':String(i+1).padStart(2,'0')}</button>`).join('')}</div>
+    <div class="bar" style="margin:4px 0 16px"><i style="width:${(st+1)/VGS.length*100}%"></i></div>
+    <div class="sub">${s[1]}</div><h3 style="font-size:20px;margin:4px 0 10px">${s[0]}</h3><p>${s[2]}</p>
+    <div class="box gr"><div class="lbl">Tipp</div>${s[3]}</div><div class="box r"><div class="lbl">Häufiger Fehler</div>${s[4]}</div>
+    <div style="display:flex;justify-content:space-between;gap:8px;margin-top:12px"><button class="btn ghost" id="vp" ${st?'':'disabled style="opacity:.4"'}>‹ ZURÜCK</button><button class="btn" id="vn">${st<VGS.length-1?'WEITER ›':'↺ VON VORN'}</button></div></div>`;
+    document.getElementById('vp').onclick=()=>{if(st>0){st--;r();}};
+    document.getElementById('vn').onclick=()=>{st=st<VGS.length-1?st+1:0;r();};
+    ex.querySelectorAll('.vgd').forEach(b=>b.onclick=()=>{st=+b.dataset.i;r();});
+  }
+  r();
+};
+
+/* ---- Prüfplanung: Bewertung + Kappa ---- */
+EXTRA.pruefplanung=(ex)=>{
+  const Z={A:['ZONE A · DICHTFLÄCHE',0.5,1.0],B:['ZONE B · FUNKTION',1.5,0.5],C:['ZONE C · UNKRITISCH',3.0,0]};
+  ex.innerHTML=`<div class="sec fx" style="--i:2">Simulator · i.O. oder n.i.O.?</div>
+  <div class="panel fx" style="--i:2"><h3>Pore bewerten</h3><div class="hint">Beispielwerte zum Üben – eure echten Grenzwerte stehen in Zeichnung und Prüfanweisung.</div>
+  <div class="ctl"><div><label>Prüfzone</label><div class="seg" id="zn">${Object.entries(Z).map(([k,v],i)=>`<button data-v="${k}" class="${i?'':'on'}">${v[0]}</button>`).join('')}</div></div>
+  <div><label>Porendurchmesser <b id="pdv"></b></label><input type="range" id="pd" min="0.1" max="4" step="0.1" value="0.8"></div>
+  <div><label>Abstand zur bearbeiteten Oberfläche <b id="pav"></b></label><input type="range" id="pa" min="0" max="5" step="0.1" value="2"></div></div>
+  <div id="vd" style="margin-top:14px"></div></div>
+  <div class="sec fx" style="--i:3">Rechner · Prüferübereinstimmung (Kappa)</div>
+  <div class="panel fx" style="--i:3"><h3>Zwei Prüfer, gleiche Teile</h3><div class="hint">Trage ein, wie oft die beiden Prüfer gleich oder unterschiedlich entschieden haben.</div>
+  <div class="row2" style="grid-template-columns:1fr 1fr"><div><label class="sub">Beide i.O.</label><input class="num-in kp" id="ka" type="number" value="40"></div><div><label class="sub">A i.O. · B n.i.O.</label><input class="num-in kp" id="kb" type="number" value="3"></div><div><label class="sub">A n.i.O. · B i.O.</label><input class="num-in kp" id="kc" type="number" value="2"></div><div><label class="sub">Beide n.i.O.</label><input class="num-in kp" id="kd" type="number" value="15"></div></div>
+  <div class="kv"><div><span>Übereinstimmung</span><b id="k1"></b></div><div><span>Kappa κ</span><b id="k2"></b></div></div><div id="k3"></div></div>`;
+  let zone='A';
+  function bew(){const d=+document.getElementById('pd').value,a=+document.getElementById('pa').value;const z=Z[zone];
+    document.getElementById('pdv').textContent=fmt(d,1)+' mm';document.getElementById('pav').textContent=fmt(a,1)+' mm';
+    const r=[];if(d>z[1])r.push(`Durchmesser ${fmt(d,1)} mm > max. ${fmt(z[1],1)} mm`);if(z[2]&&a<z[2])r.push(`Abstand ${fmt(a,1)} mm < min. ${fmt(z[2],1)} mm zur Oberfläche`);
+    const ok=!r.length;
+    document.getElementById('vd').innerHTML=`<div style="text-align:center;padding:14px;border-radius:14px;border:1px solid var(--${ok?'gr':'rd'});background:color-mix(in srgb,var(--${ok?'gr':'rd'}) 10%,transparent)"><div class="mono" style="font-size:30px;font-weight:800;color:var(--${ok?'gr':'rd'})">${ok?'✓ i.O.':'✗ n.i.O.'}</div><div style="color:var(--mut);font-size:14px">${ok?`Grenzwerte ${z[0].split('· ')[1]}: max. Ø ${fmt(z[1],1)} mm${z[2]?`, min. ${fmt(z[2],1)} mm Abstand`:''}`:r.join(' · ')}</div></div>`;}
+  function kap(){const a=+document.getElementById('ka').value||0,b=+document.getElementById('kb').value||0,c=+document.getElementById('kc').value||0,d=+document.getElementById('kd').value||0;const n=a+b+c+d;
+    if(!n){document.getElementById('k1').textContent='–';document.getElementById('k2').textContent='–';return;}
+    const p0=(a+d)/n,pe=((a+b)*(a+c)+(c+d)*(b+d))/(n*n);const k=pe<1?(p0-pe)/(1-pe):1;
+    document.getElementById('k1').textContent=fmt(p0*100,1)+' %';document.getElementById('k2').textContent=fmt(k,2);
+    const col=k>=0.75?'gr':k>=0.4?'gd':'rd';
+    document.getElementById('k3').innerHTML=`<div class="fb" style="border-color:var(--${col})"><b style="color:var(--${col})">${k>=0.75?'Gute Übereinstimmung':k>=0.4?'Mäßige Übereinstimmung':'Schlechte Übereinstimmung'}</b> – ${k>=0.75?'die Prüfer entscheiden weitgehend gleich.':'Grenzmuster und Schulung können helfen, einheitlicher zu entscheiden.'} Kappa berücksichtigt, dass ein Teil der Übereinstimmung auch zufällig wäre.</div>`;}
+  segBind('zn',v=>{zone=v;bew();});['pd','pa'].forEach(i=>document.getElementById(i).oninput=bew);
+  ex.querySelectorAll('.kp').forEach(i=>i.oninput=kap);bew();kap();
+};
+
+/* ---- 3D-Bauteil ---- */
+function loadThree(cb,err){if(window.THREE)return cb();const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';s.onload=cb;s.onerror=err;document.head.appendChild(s);}
+EXTRA.bauteil3d=(ex)=>{
+  ex.innerHTML=`<div class="panel fx" style="--i:2;padding:10px"><div id="t3wrap" style="position:relative;border-radius:12px;overflow:hidden;background:#070b11;touch-action:none"><canvas id="t3" style="height:340px"></canvas>
+  <div style="position:absolute;left:10px;top:10px" class="pills"><span class="pill" style="--ac:${V.li}" id="t3info">LADE 3D …</span></div>
+  <div style="position:absolute;right:10px;bottom:10px;font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#7f8b9c">ZIEHEN = DREHEN</div></div>
+  <div class="ctl"><div><label>Schnittebene <b id="cpv"></b></label><input type="range" id="cp" min="-15" max="15" step="0.1" value="15"></div>
+  <div class="seg" id="t3o"><button data-v="h" class="on">GEHÄUSE AN</button><button data-v="c">NUR POREN</button><button data-v="r">↺ NEUE POREN</button></div></div></div>
+  <div class="row2"><div class="panel fx" style="--i:3"><h3>CT-Schnitt an der Ebene</h3><div class="hint">So sähe der Schnitt in VGStudio aus.</div><div class="cv" style="max-width:420px;margin:0 auto"><canvas id="t3s" width="240" height="160" style="aspect-ratio:3/2;height:auto"></canvas></div></div>
+  <div class="panel fx" style="--i:4"><h3>Defekttabelle</h3><div class="hint">Die 6 größten Poren – farbig wie in der Defektanalyse.</div><div id="t3t"></div>
+  <div class="pills"><span class="pill" style="--ac:#4c9aff">&lt; 0,8 MM</span><span class="pill" style="--ac:#1fcf8f">0,8–1,4</span><span class="pill" style="--ac:#f5c542">1,4–2,0</span><span class="pill" style="--ac:#f0605d">&gt; 2,0 MM</span></div></div></div>
+  <div class="panel fx" style="--i:5"><h3>Das Bauteil</h3><div class="in"><p>Ausschnitt eines Aluminium-Gussteils, <b>30 × 16 × 20 mm</b>, mit zwei Kanälen (z. B. Öl- oder Wasserkanal), verteilten Gasporen und einem kleinen Lunker-Nest. Ziehe die Schnittebene durch das Teil – genau so suchst du in der CT Schicht für Schicht nach Defekten.</p></div></div>`;
+  const my=runId;
+  const colOf=d=>d<0.8?0x4c9aff:d<1.4?0x1fcf8f:d<2.0?0xf5c542:0xf0605d;
+  const colS=d=>d<0.8?'#4c9aff':d<1.4?'#1fcf8f':d<2.0?'#f5c542':'#f0605d';
+  const CH=[[-3,-2,2.6],[4,3,2.0]]; // Kanäle entlang x: (y,z,r) in mm
+  const HX=15,HY=8,HZ=10;
+  let pores=[];
+  function genPores(){pores=[];let tries=0;
+    while(pores.length<34&&tries<3000){tries++;const d=Math.random()<0.75?0.4+Math.random()*1.0:1.2+Math.random()*1.4;const r=d/2;
+      const p=[(Math.random()*2-1)*(HX-1.5),(Math.random()*2-1)*(HY-1.2),(Math.random()*2-1)*(HZ-1.2),d,'gas'];
+      if(CH.some(c=>Math.hypot(p[1]-c[0],p[2]-c[1])<c[2]+r+0.6))continue;if(pores.some(q=>Math.hypot(p[0]-q[0],p[1]-q[1],p[2]-q[2])<r+q[3]/2+0.3))continue;pores.push(p);}
+    // Lunker-Nest
+    let c=[6+Math.random()*4,-3,-5];for(let k=0;k<14;k++){pores.push([c[0],c[1],c[2],0.3+Math.random()*0.5,'lunker']);c=[c[0]+(Math.random()-.5)*1.2,c[1]+(Math.random()-.5)*1.2,c[2]+(Math.random()-.5)*1.2];}
+    pores.forEach(p=>{p[5]=Math.min(HX-Math.abs(p[0]),HY-Math.abs(p[1]),HZ-Math.abs(p[2]),...CH.map(c=>Math.hypot(p[1]-c[0],p[2]-c[1])-c[2]))-p[3]/2;});
+  }
+  genPores();
+  function table(){const big=pores.filter(p=>p[4]==='gas').sort((a,b)=>b[3]-a[3]).slice(0,6);
+    document.getElementById('t3t').innerHTML=`<table class="t"><tr><th>#</th><th>Ø mm</th><th>Vol. mm³</th><th>Abst. mm</th></tr>${big.map((p,i)=>`<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${colS(p[3])};margin-right:6px"></span>${i+1}</td><td class="mono">${fmt(p[3],2)}</td><td class="mono">${fmt(Math.PI/6*p[3]**3,3)}</td><td class="mono">${fmt(Math.max(0,p[5]),1)}</td></tr>`).join('')}</table>`;}
+  table();
+  const sc=document.getElementById('t3s'),sx=sc.getContext('2d');
+  function slice(xp){const W=240,H=160;const im=sx.createImageData(W,H);
+    for(let j=0;j<H;j++)for(let i=0;i<W;i++){const z=(i/W*2-1)*12.5,y=(1-j/H*2)*8.3;let v=0.07;
+      if(Math.abs(z)<HZ&&Math.abs(y)<HY)v=0.62;
+      for(const c of CH)if(Math.hypot(y-c[0],z-c[1])<c[2])v=0.07;
+      if(v>0.5)for(const p of pores){const rr=(p[3]/2)**2-(xp-p[0])**2;if(rr>0&&(y-p[1])**2+(z-p[2])**2<rr){v=0.09;break;}}
+      v=Math.max(0,Math.min(1,v+gauss()*0.03))*255;const k=(j*W+i)*4;im.data[k]=v;im.data[k+1]=Math.min(255,v+3);im.data[k+2]=Math.min(255,v+8);im.data[k+3]=255;}
+    sx.putImageData(im,0,0);
+    if(Math.abs(xp)>HX){sx.fillStyle='#7f8b9c';sx.font='700 11px "JetBrains Mono",monospace';sx.fillText('EBENE AUSSERHALB DES BAUTEILS',30,85);}
+    // Poren im Schnitt markieren
+    for(const p of pores){const rr=(p[3]/2)**2-(xp-p[0])**2;if(rr>0){const cx=(p[2]/12.5+1)/2*W,cy=(1-p[1]/8.3)/2*H;sx.strokeStyle=colS(p[3]);sx.lineWidth=1;sx.beginPath();sx.arc(cx,cy,Math.sqrt(rr)/12.5*W/2+3,0,7);sx.stroke();}}
+  }
+  loadThree(()=>{
+    if(my!==runId||!document.getElementById('t3'))return;
+    const T=window.THREE;const cv=document.getElementById('t3');const wrap=document.getElementById('t3wrap');
+    const renderer=new T.WebGLRenderer({canvas:cv,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.localClippingEnabled=true;
+    const scene=new T.Scene();const cam=new T.PerspectiveCamera(40,1,0.1,500);cam.position.set(0,18,58);cam.lookAt(0,0,0);
+    scene.add(new T.AmbientLight(0xffffff,0.55));const dl=new T.DirectionalLight(0xffffff,0.9);dl.position.set(20,30,25);scene.add(dl);
+    const g=new T.Group();scene.add(g);g.rotation.set(0.45,-0.6,0);
+    const plane=new T.Plane(new T.Vector3(-1,0,0),15);
+    const hullM=new T.MeshStandardMaterial({color:0x9aa4b1,transparent:true,opacity:0.22,depthWrite:false,roughness:0.6,metalness:0.3,clippingPlanes:[plane],side:T.DoubleSide});
+    const hull=new T.Mesh(new T.BoxGeometry(HX*2,HY*2,HZ*2),hullM);g.add(hull);
+    const edges=new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(HX*2,HY*2,HZ*2)),new T.LineBasicMaterial({color:0x7f8b9c,transparent:true,opacity:0.6}));g.add(edges);
+    const chM=new T.MeshStandardMaterial({color:0x3a4554,transparent:true,opacity:0.55,clippingPlanes:[plane],side:T.DoubleSide});
+    CH.forEach(c=>{const m=new T.Mesh(new T.CylinderGeometry(c[2],c[2],HX*2,32,1,true),chM);m.rotation.z=Math.PI/2;m.position.set(0,c[0],c[1]);g.add(m);});
+    const poreG=new T.Group();g.add(poreG);
+    function buildPores(){while(poreG.children.length)poreG.remove(poreG.children[0]);pores.forEach(p=>{const m=new T.Mesh(new T.SphereGeometry(p[3]/2,16,12),new T.MeshBasicMaterial({color:colOf(p[3]),clippingPlanes:[plane]}));m.position.set(p[0],p[1],p[2]);poreG.add(m);});}
+    buildPores();
+    const cutM=new T.MeshBasicMaterial({color:0x1fcf8f,transparent:true,opacity:0.12,side:T.DoubleSide,depthWrite:false});
+    const cut=new T.Mesh(new T.PlaneGeometry(HZ*2+2,HY*2+2),cutM);cut.rotation.y=Math.PI/2;g.add(cut);
+    const cutE=new T.LineSegments(new T.EdgesGeometry(new T.PlaneGeometry(HZ*2+2,HY*2+2)),new T.LineBasicMaterial({color:0x1fcf8f}));cutE.rotation.y=Math.PI/2;g.add(cutE);
+    let xp=15;
+    function setCut(){xp=+document.getElementById('cp').value;document.getElementById('cpv').textContent=(xp>=HX?'AUS':fmt(xp+HX,1)+' mm');cut.position.x=xp;cutE.position.x=xp;cut.visible=cutE.visible=xp<HX;slice(xp<HX?xp:99);}
+    document.getElementById('cp').oninput=setCut;setCut();
+    segBind('t3o',v=>{if(v==='h'){hull.visible=true;g.children.forEach(o=>{if(o.geometry&&o.geometry.type==='CylinderGeometry')o.visible=true;});}else if(v==='c'){hull.visible=false;g.children.forEach(o=>{if(o.geometry&&o.geometry.type==='CylinderGeometry')o.visible=false;});}else{genPores();buildPores();table();setCut();document.querySelector('#t3o button[data-v=h]').click();}});
+    let drag=null,idle=0;
+    cv.addEventListener('pointerdown',e=>{drag=[e.clientX,e.clientY];cv.setPointerCapture(e.pointerId);});
+    cv.addEventListener('pointermove',e=>{if(!drag)return;g.rotation.y+=(e.clientX-drag[0])*0.01;g.rotation.x=Math.max(-1.4,Math.min(1.4,g.rotation.x+(e.clientY-drag[1])*0.01));drag=[e.clientX,e.clientY];idle=0;});
+    cv.addEventListener('pointerup',()=>drag=null);cv.addEventListener('pointercancel',()=>drag=null);
+    document.getElementById('t3info').textContent=pores.filter(p=>p[4]==='gas').length+' POREN + LUNKER-NEST';
+    const tmp=new T.Vector3();
+    function loop(){if(my!==runId||!document.getElementById('t3')){renderer.dispose();return;}
+      const w=wrap.clientWidth,h=340;if(cv.width!==Math.floor(w*renderer.getPixelRatio())){renderer.setSize(w,h,false);cv.style.width='100%';cv.style.height=h+'px';cam.aspect=w/h;cam.updateProjectionMatrix();}
+      if(!drag){idle++;if(idle>120)g.rotation.y+=0.003;}
+      g.updateMatrixWorld();const n=new T.Vector3(-1,0,0).applyQuaternion(g.quaternion);tmp.set(xp,0,0);g.localToWorld(tmp);plane.setFromNormalAndCoplanarPoint(n,tmp);
+      renderer.render(scene,cam);requestAnimationFrame(loop);}
+    loop();
+  },()=>{document.getElementById('t3info').textContent='3D BRAUCHT INTERNET';slice(0);document.getElementById('cp').oninput=()=>{const v=+document.getElementById('cp').value;document.getElementById('cpv').textContent=fmt(v+HX,1)+' mm';slice(v);};});
+};
+
+/* ============== Prüfungsmodus: Quiz ============== */
+[1,1,2,2,2,1,2,1,2,2,2,1,2,1,2,1,1,2,3,2,3,2].forEach((l,i)=>{if(QZ[i])QZ[i][4]=l;});
+QZ.push(
+['Was wandelt im Flachdetektor Röntgenstrahlung in Licht um?',['Der Szintillator','Die Fotodiode','Der Kollimator','Der Vorfilter'],0,'Z. B. Cäsiumiodid oder Gadoliniumoxysulfid – darunter misst eine Pixelmatrix das Licht.',1],
+['Die Belichtungszeit wird vervierfacht. Wie ändert sich das Signal-Rausch-Verhältnis?',['Es verdoppelt sich','Es vervierfacht sich','Es halbiert sich','Es bleibt gleich'],0,'SNR wächst mit der Wurzel der Photonenzahl: √4 = 2.',2],
+['Was bewirkt 2×2-Binning?',['Mehr Signal pro Pixel, aber halbe Auflösung','Doppelte Auflösung','Weniger Signal pro Pixel','Kleineren Brennfleck'],0,'Vier Pixel werden zu einem – 4-faches Signal, aber doppelte Pixelgröße.',2],
+['Was beschreibt das CNR?',['Kontrast zwischen zwei Bereichen im Verhältnis zum Rauschen','Die Anzahl der Projektionen','Den Röhrenstrom','Den Kegelwinkel'],0,'CNR = Grauwertunterschied geteilt durch Rauschen – entscheidend für die Porenerkennung.',2],
+['Was ist Nachleuchten (Lag) beim Detektor?',['Restsignal des vorherigen Bildes','Das Glühen der Kathode','Leuchten des Bauteils','Die Warnleuchte der Kabine'],0,'Der Szintillator leuchtet kurz nach – bei sehr kurzen Belichtungen sichtbar.',3],
+['Warum darf das Bauteil im Projektionsbild nicht in Sättigung sein?',['Grauwerte werden abgeschnitten, Information geht verloren','Der Detektor wird radioaktiv','Die Röhre überhitzt','Der Scan wird langsamer'],0,'Gesättigte Pixel zeigen nur noch den Maximalwert.',2],
+['Sehr dickes Kurbelgehäuse an einer 450-kV-Anlage – welcher Brennfleck eher?',['1,0 mm wegen der höheren Leistung','Immer 0,4 mm','Der Brennfleck ist egal','0,1 mm'],0,'Der große Fokus erlaubt mehr Leistung – solange die Unschärfe zur Voxelgröße passt.',2],
+['Was passiert, wenn das Bauteil beim Drehen seitlich aus dem Messfeld ragt?',['Abschneide-Artefakte (Truncation)','Nichts','Bessere Auflösung','Weniger Rauschen'],0,'Der Rekonstruktion fehlen Daten – Grauwerte und Kanten werden verfälscht.',3],
+['Mehr Projektionen bewirken …',['weniger Streifen, aber längere Scanzeit','höhere kV','einen kleineren Brennfleck','mehr Strahlaufhärtung'],0,'Zu wenige Projektionen erzeugen Unterabtastungs-Streifen.',1],
+['Warum stellt man Bauteile oft schräg auf den Drehteller?',['Kürzere Durchstrahlungswege und weniger Kegelstrahlartefakte','Damit es schneller geht','Wegen der Optik','Um Strom zu sparen'],0,'Flächen senkrecht zur Drehachse und lange Wege werden vermieden.',2],
+['450 kV bei max. 700 W – wie hoch ist der Strom höchstens?',['ca. 1,6 mA','ca. 0,7 mA','ca. 7 mA','ca. 16 mA'],0,'I = P / U = 700 W / 450 kV ≈ 1,56 mA.',3],
+['Was ist der erste Auswerteschritt nach dem Laden des Volumens für Messungen?',['Oberflächenbestimmung','Bericht drucken','Datei löschen','Projektionen zählen'],0,'Ohne Oberfläche gibt es keine Registrierung, kein Soll-Ist und keine Wanddicke.',1],
+['Wozu dient die Registrierung?',['Scan und CAD in dasselbe Koordinatensystem bringen','Rauschen entfernen','Poren einfärben','Die Datei verkleinern'],0,'Z. B. per Best-Fit, 3-2-1 oder RPS.',1],
+['Was bewirkt die Mindestgröße in der Defektanalyse?',['Kleinere Defekte werden ignoriert – Rauschen fällt weg','Sie begrenzt die Bauteilgröße','Sie ändert die Voxelgröße','Sie bestimmt die kV'],0,'Zu klein eingestellt wird Rauschen als Porosität gezählt.',2],
+['Welche Wanddicken-Methode ist robuster an Rundungen?',['Kugelmethode','Strahlmethode','ISO-50','Best-Fit'],0,'Die größte einbeschriebene Kugel reagiert weniger empfindlich auf die Richtung.',2],
+['Ein Soll-Ist-Vergleich zeigt eine Seite nur rot, die andere nur blau. Häufige Ursache?',['Registrierung verschoben oder Kernversatz','Zu viel Rauschen','Zu kleine Voxel','Falscher Vorfilter'],0,'Einseitige Abweichungen deuten auf Ausrichtung oder Versatz hin.',3],
+['Aluminium, 500 mm lang, 2 K wärmer als 20 °C – wie viel länger?',['ca. 23 µm','ca. 2,3 µm','ca. 230 µm','ca. 0,23 µm'],0,'ΔL = 23 µm/(m·K) · 0,5 m · 2 K = 23 µm.',3],
+['Bezugstemperatur für Längenmessungen?',['20 °C','0 °C','25 °C','37 °C'],0,'Festgelegt in ISO 1.',2],
+['Womit wird die Voxelgröße rückgeführt bzw. korrigiert?',['Mit einem kalibrierten Prüfkörper, z. B. Kugelstab','Mit einem Lineal am Monitor','Über den Röhrenstrom','Über den Vorfilter'],0,'Bekannte Kugelabstände korrigieren die Skalierung.',2],
+['Goldene Regel: Die Messunsicherheit sollte höchstens … der Toleranz betragen.',['ca. 10–20 %','50 %','100 %','200 %'],0,'Sonst ist das Messmittel für das Merkmal ungeeignet.',2],
+['Welche Richtlinienreihe behandelt CT in der dimensionellen Messtechnik?',['VDI/VDE 2630','DIN 1988','ISO 9001','BDG P 202'],0,'Z. B. Blatt 1.3 zur Prüfung der Genauigkeit.',1],
+['Was ist die Kugelabstandsabweichung (SD)?',['Abweichung des gemessenen Abstands zweier Kugelmittelpunkte vom kalibrierten Wert','Die Rundheit einer Kugel','Der Kugeldurchmesser','Das Bildrauschen'],0,'Eine der Kenngrößen nach VDI/VDE 2630-1.3.',3],
+['Voxelgröße 0,1 % zu groß – Fehler bei 400 mm Länge?',['0,4 mm','0,04 mm','4 mm','0,004 mm'],0,'400 mm · 0,001 = 0,4 mm.',3],
+['Attributive Prüfung bedeutet …',['Bewertung als i.O. oder n.i.O.','Messen mit Zahlenwert','Nur Sichtprüfung','Prüfen ohne Vorgabe'],0,'Das Ergebnis ist eine Kategorie, kein Messwert.',1],
+['Cohens Kappa = 0,9 bedeutet …',['sehr gute Übereinstimmung der Prüfer','schlechte Übereinstimmung','reiner Zufall','90 % Ausschuss'],0,'κ nahe 1 = fast immer gleiche Entscheidung.',2],
+['Wozu dienen Grenzmuster?',['Referenzen genau an der Grenze i.O./n.i.O.','Gussformen','Rohmaterialproben','Messschieber'],0,'Sie helfen allen Prüfern, gleich zu entscheiden.',1],
+['Warum gibt es Prüfzonen?',['Weil Defekte z. B. an Dichtflächen kritischer sind','Um Zeit zu sparen','Wegen des Strahlenschutzes','Für schönere Farben'],0,'Jede Zone bekommt eigene Grenzwerte.',1],
+['Ab welchem Kappa gilt die Übereinstimmung häufig als gut?',['ab ca. 0,75','ab 0,1','ab 0,3','nur bei genau 1,0'],0,'Gängige Faustregel – eure Vorgaben können abweichen.',3],
+['Was ermöglicht Dual-Energy-CT?',['Bessere Trennung verschiedener Materialien','Eine schnellere Röhre','Verzicht auf Strahlenschutz','Farbige Röntgenbilder'],0,'Materialien schwächen bei verschiedenen Energien unterschiedlich.',2],
+['Wofür ist Laminographie besonders geeignet?',['Flache, große Bauteile wie Leiterplatten','Lange Wellen','Flüssigkeiten','Kugeln'],0,'Schräge Durchstrahlung statt voller Drehung.',3],
+['Vorteil photonenzählender Detektoren?',['Sie messen die Energie einzelner Photonen','Sie brauchen keine Röhre','Sie brauchen keine Kalibrierung','Sie sind am billigsten'],0,'Das ermöglicht spektrale CT.',3],
+['Helix-CT vermeidet vor allem …',['Kegelstrahlartefakte bei langen Bauteilen','Rauschen','Strahlaufhärtung','Ringartefakte'],0,'Die Schraubenbahn erfasst alle Höhen vollständig.',2],
+['Inline-CT bedeutet …',['CT direkt in der Fertigungslinie im Takt','CT nur im Labor','CT ausschließlich für Erstmuster','CT per Handy'],0,'Mit automatischer Auswertung.',1],
+['Ein Risiko bei KI-Fehlererkennung?',['Sie erkennt nur, was sie aus Trainingsdaten kennt','Sie erhöht die Dosis','Sie ändert die Voxelgröße','Es gibt keine Risiken'],0,'Neue Fehlerarten oder Bauteile brauchen neues Training.',2],
+['Wofür steht „keV“?',['Kiloelektronenvolt – eine Energieeinheit','Kilovolt-Effektivwert','Kathoden-Energie-Volumen','Kilo-Ebenen-Voxel'],0,'1 keV = 1000 eV.',1],
+['Welches Anodenmaterial ist in Röntgenröhren am häufigsten?',['Wolfram','Aluminium','Kupfer','Gold'],0,'Hoher Schmelzpunkt und hohe Ordnungszahl.',1],
+['Leistung bei 300 kV und 2 mA?',['600 W','150 W','302 W','6000 W'],0,'P = U · I = 300.000 V · 0,002 A = 600 W.',1],
+['Brennfleck 1,0 mm, Vergrößerung 2 – Unschärfe im Bauteil?',['0,5 mm','1,0 mm','2,0 mm','0,25 mm'],0,'U = f · (M − 1) / M = 1,0 · 1 / 2 = 0,5 mm.',3],
+['Was bewirkt der Teilvolumeneffekt bei kleinen Poren?',['Graue statt schwarze Voxel – Poren wirken kleiner','Poren werden heller als Aluminium','Ringe im Bild','Streifen im Bild'],0,'Randvoxel enthalten Material und Luft.',2],
+['Welches gehört NICHT zur 3-A-Regel im Strahlenschutz?',['Anfahrt','Abstand','Abschirmung','Aufenthaltsdauer'],0,'Die 3 A: Abstand, Abschirmung, Aufenthaltsdauer.',1]
+);
+EXTRA.quiz=(ex)=>{
+  let lvl=0,len=10,qs,i,pts;
+  const LV=[['0','GEMISCHT'],['1','LEICHT'],['2','MITTEL'],['3','SCHWER']];
+  function menu(){
+    store.bests=store.bests||{};
+    ex.innerHTML=`<div class="panel fx"><h3>Prüfungsmodus</h3><div class="hint">${QZ.length} Fragen in drei Schwierigkeitsstufen. Wähle Stufe und Länge.</div>
+    <div class="ctl"><div><label>Schwierigkeit</label><div class="seg" id="ql">${LV.map(l=>`<button data-v="${l[0]}" class="${+l[0]===lvl?'on':''}">${l[1]} · ${l[0]==='0'?QZ.length:QZ.filter(q=>q[4]==+l[0]).length}</button>`).join('')}</div></div>
+    <div><label>Anzahl Fragen</label><div class="seg" id="qn"><button data-v="10" class="${len===10?'on':''}">10</button><button data-v="20" class="${len===20?'on':''}">20</button></div></div></div>
+    <div class="kv">${LV.map(l=>`<div><span>Bestwert ${l[1]}</span><b>${store.bests[l[0]]!=null?store.bests[l[0]]+' %':'–'}</b></div>`).join('')}</div>
+    <button class="btn" id="qs" style="width:100%;margin-top:14px">▶ PRÜFUNG STARTEN</button></div>`;
+    segBind('ql',v=>lvl=+v);segBind('qn',v=>len=+v);
+    document.getElementById('qs').onclick=start;
+  }
+  function start(){const pool=QZ.filter(q=>!lvl||q[4]===lvl);qs=pool.slice().sort(()=>Math.random()-.5).slice(0,Math.min(len,pool.length));i=0;pts=0;show();}
+  function show(){
+    const n=qs.length;
+    if(i>=n){const pct=Math.round(pts/n*100);store.bests=store.bests||{};if(store.bests[lvl]==null||pct>store.bests[lvl])store.bests[lvl]=pct;store.best=Math.max(store.best||0,Math.round(pct/10));save();
+      const col=pct>=80?V.gr:pct>=50?V.gd:V.rd;
+      ex.innerHTML=`<div class="panel fx" style="text-align:center;padding:28px 16px"><div class="sub">ERGEBNIS · ${LV[lvl][1]}</div><div class="mono" style="font-size:56px;font-weight:800;color:${col}">${pts}/${n}</div><div class="mono" style="color:${col};font-weight:700">${pct} %</div><p style="color:var(--mut);margin:6px 0 16px">${pct>=80?'Stark! Bestanden mit Auszeichnung.':pct>=50?'Bestanden – ein paar Lernkarten noch einmal ansehen.':'Noch nicht bestanden – die Lernkarten helfen dir weiter.'}</p><div class="pills" style="justify-content:center"><span class="pill" style="--ac:${V.gd}">BESTWERT ${store.bests[lvl]} %</span></div><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px"><button class="btn" id="again">↺ NOCHMAL</button><button class="btn ghost" id="menu">STUFE WECHSELN</button></div></div>`;
+      document.getElementById('again').onclick=start;document.getElementById('menu').onclick=menu;return;}
+    const q=qs[i];const ord=q[1].map((o,k)=>[o,k]).sort(()=>Math.random()-.5);
+    ex.innerHTML=`<div class="panel fx"><div style="display:flex;justify-content:space-between"><span class="sub">FRAGE ${i+1} / ${n} · ${['','LEICHT','MITTEL','SCHWER'][q[4]||2]}</span><span class="sub" style="color:var(--gr)">${pts} PUNKTE</span></div><div class="bar" style="margin:8px 0 16px"><i style="width:${i/n*100}%"></i></div>
+    <h3 style="font-family:Inter;text-transform:none;letter-spacing:0;font-size:18px;color:var(--tx);margin-bottom:14px;font-weight:700">${q[0]}</h3>
+    ${ord.map((o,k)=>`<button class="qopt" data-k="${o[1]}"><span class="mono" style="color:var(--ac);font-weight:800;margin-right:8px">${'ABCD'[k]}</span>${o[0]}</button>`).join('')}<div id="qf"></div></div>`;
+    ex.querySelectorAll('.qopt').forEach(b=>b.onclick=()=>{
+      if(ex.querySelector('.qopt.ok'))return;const ok=+b.dataset.k===q[2];if(ok)pts++;
+      ex.querySelectorAll('.qopt').forEach(x=>{if(+x.dataset.k===q[2])x.classList.add('ok');});if(!ok)b.classList.add('no');
+      document.getElementById('qf').innerHTML=`<div class="fb" style="border-color:${ok?V.gr:V.rd}"><b style="color:${ok?V.gr:V.rd}">${ok?'✓ RICHTIG':'✗ FALSCH'}</b> – ${q[3]}</div><button class="btn" style="margin-top:10px;width:100%" id="qn2">${i<n-1?'NÄCHSTE FRAGE ›':'ERGEBNIS ANZEIGEN ›'}</button>`;
+      document.getElementById('qn2').onclick=()=>{i++;show();};
+    });
+  }
+  menu();
+};
+
+/* ============== Fehler-Detektiv mit Levels & Zeitmodus ============== */
+EXTRA.detektiv=(ex)=>{
+  const K0=[['GAS','Gaspore',V.bl],['LUNKER','Schwindungslunker',V.or],['EINSCHLUSS','Dichter Einschluss',V.gd],['KERN','Kernbruch',V.li]];
+  const OK=['OK','Kein Fehler (i.O.)',V.gr];
+  const EXPL={GAS:'Rund, glatte Wände, scharf begrenzt – typisch für eingeschlossenes Gas.',LUNKER:'Zerklüftet und schwammartig – entsteht bei der Erstarrung an Materialanhäufungen.',EINSCHLUSS:'Heller als Aluminium = höhere Dichte, z. B. ein Eisenpartikel.',KERN:'Im Kanal liegt Material – der Sandkern ist gebrochen und Metall ist hineingeflossen.',OK:'Nur Rauschen und die gewollten Kanäle – das Teil ist in Ordnung.'};
+  let level=1,timed=false,score=0,total=0,streak=0,cur=null,tLeft=0,timer=null;const my=runId;
+  store.detBest=store.detBest||{};
+  const K=()=>level===3?K0.concat([OK]):K0;
+  ex.innerHTML=`<div class="sec fx" style="--i:2">Spiel · Erkenne den Fehler</div>
+  <div class="panel fx" style="--i:2">
+  <div class="ctl" style="margin-top:0"><div><label>Level</label><div class="seg" id="lv"><button data-v="1" class="on">1 · GROSS</button><button data-v="2">2 · KLEINER</button><button data-v="3">3 · PROFI</button></div></div>
+  <div><label>Modus</label><div class="seg" id="md"><button data-v="0" class="on">ÜBEN</button><button data-v="1">⏱ 60 SEKUNDEN</button></div></div></div>
+  <div class="pills" id="sc"></div>
+  <div class="cv" style="max-width:420px;margin:0 auto"><span class="lbl pill" style="--ac:${V.rd}">CT-SCHNITT · ALSI-GUSS</span><canvas id="dg" width="220" height="220" style="image-rendering:auto"></canvas></div>
+  <div class="hint" style="text-align:center;margin:10px 0">Welcher Fehler ist in diesem Schnitt versteckt?<br><span style="font-size:12.5px" id="lh"></span></div>
+  <div class="row2" id="ans" style="grid-template-columns:1fr 1fr"></div>
+  <div id="dfb"></div></div>`;
+  const cv=document.getElementById('dg'),x=cv.getContext('2d');const N=220;
+  function buttons(){document.getElementById('ans').innerHTML=K().map(k=>`<button class="qopt" data-k="${k[0]}" style="text-align:center;font-family:'JetBrains Mono',monospace;font-weight:700;color:${k[2]}${k[0]==='OK'?';grid-column:span 2':''}">${k[1].toUpperCase()}</button>`).join('');
+    document.querySelectorAll('#ans .qopt').forEach(b=>b.onclick=()=>answer(b));
+    document.getElementById('lh').textContent=level===1?'Die zwei großen Öffnungen sind gewollte Kanäle (Sandkerne).':level===2?'Kleinere Fehler, mehr Rauschen.':'Winzige Fehler, starkes Rauschen – und manchmal ist gar kein Fehler drin!';}
+  function gen(){
+    const ks=K();cur=ks[Math.floor(Math.random()*ks.length)][0];
+    const L=level;const f=new Float32Array(N*N);
+    const holes=[[70,120,22],[150,90,18]];
+    const inPart=(i,j)=>{const u=(i-110)/88,v=(j-110)/68;if(Math.abs(u)>1||Math.abs(v)>1)return false;if(Math.abs(u)>0.75&&Math.abs(v)>0.7&&((Math.abs(u)-0.75)/0.25)**2+((Math.abs(v)-0.7)/0.3)**2>1)return false;return true;};
+    for(let j=0;j<N;j++)for(let i=0;i<N;i++){let v=0.07;if(inPart(i,j))v=0.62;for(const h of holes)if((i-h[0])**2+(j-h[1])**2<h[2]**2)v=0.07;f[j*N+i]=v;}
+    const free=()=>{for(let t=0;t<500;t++){const i=40+Math.random()*140,j=60+Math.random()*100;let ok=inPart(i,j);for(const h of holes)if(Math.hypot(i-h[0],j-h[1])<h[2]+16)ok=false;if(ok&&inPart(i+12,j)&&inPart(i-12,j)&&inPart(i,j+12)&&inPart(i,j-12))return [i,j];}return [110,140];};
+    const disk=(a,b,r,val)=>{for(let j=Math.floor(b-r-1);j<=b+r+1;j++)for(let i=Math.floor(a-r-1);i<=a+r+1;i++){if(i<0||j<0||i>=N||j>=N)continue;if((i-a)**2+(j-b)**2<r*r)f[j*N+i]=val;}};
+    const s=[1,0.62,0.4][L-1];
+    if(cur==='GAS'){const [a,b]=free();disk(a,b,(5+Math.random()*4)*s,0.07);if(Math.random()<.5){const [c,d]=free();disk(c,d,2.5*s+0.6,0.07);}}
+    if(cur==='LUNKER'){let [a,b]=free();const n=[45,32,22][L-1];for(let k=0;k<n;k++){disk(a,b,(1+Math.random()*2.2)*Math.max(0.6,s),0.07+Math.random()*0.25);a+=(Math.random()-.5)*5*s;b+=(Math.random()-.5)*5*s;}}
+    if(cur==='EINSCHLUSS'){const [a,b]=free();for(let k=0;k<5;k++)disk(a+(Math.random()-.5)*4*s,b+(Math.random()-.5)*4*s,(1.8+Math.random()*1.5)*Math.max(0.55,s),L===3?0.85:1.0);}
+    if(cur==='KERN'){const h=holes[Math.floor(Math.random()*2)];const ang=Math.random()*Math.PI;const w=[5,3.2,2][L-1]+Math.random()*1.5;
+      for(let j=0;j<N;j++)for(let i=0;i<N;i++){const dx=i-h[0],dy=j-h[1];if(dx*dx+dy*dy<h[2]*h[2]){const d=Math.abs(-dx*Math.sin(ang)+dy*Math.cos(ang));if(d<w)f[j*N+i]=0.62;}}}
+    const g=new Float32Array(N*N);for(let j=1;j<N-1;j++)for(let i=1;i<N-1;i++){let t=0;for(let b=-1;b<=1;b++)for(let a=-1;a<=1;a++)t+=f[(j+b)*N+i+a];g[j*N+i]=t/9;}
+    const sig=[0.035,0.055,0.075][L-1];const im=x.createImageData(N,N);
+    for(let k=0;k<N*N;k++){let v=g[k]+gauss()*sig;v=Math.max(0,Math.min(1,v))*255;im.data[k*4]=v;im.data[k*4+1]=Math.min(255,v+3);im.data[k*4+2]=Math.min(255,v+8);im.data[k*4+3]=255;}
+    x.putImageData(im,0,0);
+    document.getElementById('dfb').innerHTML='';
+    document.querySelectorAll('#ans .qopt').forEach(b=>{b.classList.remove('ok','no');b.disabled=false;});
+    sc();
+  }
+  function sc(){const key=level+(timed?'t':'');document.getElementById('sc').innerHTML=`<span class="pill" style="--ac:${V.gr}">RICHTIG ${score}/${total}</span><span class="pill" style="--ac:${V.gd}">SERIE ${streak}</span>${timed?`<span class="pill" style="--ac:${V.rd}">⏱ ${tLeft} S</span>`:''}<span class="pill" style="--ac:${V.li}">BEST ${store.detBest[key]||0}</span>`;}
+  function answer(b){
+    if(b.disabled||(timed&&tLeft<=0))return;const ok=b.dataset.k===cur;total++;if(ok){score++;streak++;}else streak=0;
+    document.querySelectorAll('#ans .qopt').forEach(q=>{q.disabled=true;if(q.dataset.k===cur)q.classList.add('ok');});if(!ok)b.classList.add('no');
+    const name=K().find(k=>k[0]===cur)[1];
+    if(timed){sc();setTimeout(()=>{if(my===runId&&tLeft>0)gen();},550);return;}
+    const key=String(level);if(streak>(store.detBest[key]||0)){store.detBest[key]=streak;save();}
+    document.getElementById('dfb').innerHTML=`<div class="fb" style="border-color:${ok?V.gr:V.rd}"><b style="color:${ok?V.gr:V.rd}">${ok?'✓ RICHTIG!':'✗ LEIDER FALSCH'}</b> – Es war: <b>${name}</b>. ${EXPL[cur]}</div><button class="btn" style="margin-top:10px;width:100%" id="nx">NÄCHSTES BILD ›</button>`;
+    document.getElementById('nx').onclick=gen;sc();
+  }
+  function reset(){clearInterval(timer);score=0;total=0;streak=0;buttons();
+    if(timed){tLeft=60;gen();timer=setInterval(()=>{if(my!==runId||!document.getElementById('dg')){clearInterval(timer);return;}tLeft--;sc();if(tLeft<=0){clearInterval(timer);const key=level+'t';const nb=score>(store.detBest[key]||0);if(nb){store.detBest[key]=score;save();}
+      document.querySelectorAll('#ans .qopt').forEach(q=>q.disabled=true);
+      document.getElementById('dfb').innerHTML=`<div class="fb" style="border-color:${V.gd};text-align:center"><div class="mono" style="font-size:30px;font-weight:800;color:${V.gd}">${score} RICHTIG</div>in 60 Sekunden (${total} Antworten)${nb?' – <b>neuer Bestwert!</b>':''}</div><button class="btn" style="margin-top:10px;width:100%" id="nx">↺ NOCHMAL</button>`;document.getElementById('nx').onclick=reset;sc();}},1000);}
+    else gen();}
+  segBind('lv',v=>{level=+v;reset();});segBind('md',v=>{timed=v==='1';reset();});
+  reset();
+};
+S.quiz.t='Prüfungsmodus';S.quiz.d=QZ.length+' Fragen in drei Stufen (leicht, mittel, schwer) – mit Bestwerten und Erklärung nach jeder Antwort.';
+S.detektiv.d='Erkenne Gasporen, Lunker, Einschlüsse und Kernbruch in CT-Schnitten – 3 Levels und ein 60-Sekunden-Modus.';
+LEX.push(
+['Antastabweichung','Kenngröße für die Messgenauigkeit an einer Kugel – Form (PF) und Größe (PS), nach VDI/VDE 2630-1.3.'],
+['Binning','Zusammenfassen mehrerer Detektorpixel: mehr Signal, weniger Auflösung.'],
+['Cohens Kappa','Maß für die Übereinstimmung zweier Prüfer, bereinigt um Zufall.'],
+['Dual-Energy-CT','Aufnahme mit zwei Spektren zur besseren Materialtrennung.'],
+['Grenzmuster','Referenzteil oder -bild genau an der Grenze zwischen i.O. und n.i.O.'],
+['Inline-CT','CT-Prüfung direkt in der Fertigungslinie im Takt.'],
+['Kugelabstandsabweichung (SD)','Abweichung des gemessenen vom kalibrierten Abstand zweier Kugelmittelpunkte.'],
+['Laminographie','Schräge Durchstrahlung für flache, große Bauteile.'],
+['Messunsicherheit','Bereich, in dem der wahre Wert mit hoher Wahrscheinlichkeit liegt.'],
+['Mittelung','Mehrere Bilder je Projektion addieren – weniger Rauschen, längere Scanzeit.'],
+['Nachleuchten (Lag)','Restsignal des Szintillators aus dem vorherigen Bild.'],
+['Prüfzone','Bereich eines Bauteils mit eigenen Grenzwerten, z. B. Dichtfläche.'],
+['Sättigung','Detektorpixel am Maximalwert – Information geht verloren.'],
+['SNR','Signal-Rausch-Verhältnis – steigt mit der Wurzel der Photonenzahl.'],
+['Szintillator','Schicht im Detektor, die Röntgenstrahlung in Licht umwandelt (z. B. CsI, GOS).'],
+['Truncation (Abschneiden)','Bauteil ragt aus dem Messfeld – führt zu Artefakten.'],
+['Wärmeausdehnung','Aluminium dehnt sich um ca. 23 µm pro Meter und Kelvin aus.']
+);LEX.sort((a,b)=>a[0].localeCompare(b[0],'de'));
+TL.splice(TL.findIndex(t=>t[0]==='2021'),0,['2010er','CT als Messgerät','Die Richtlinienreihe VDI/VDE 2630 beschreibt, wie CT-Messanlagen geprüft und bewertet werden.',V.bl]);
 
 render();
 if("serviceWorker" in navigator){addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));}
