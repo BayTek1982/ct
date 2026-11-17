@@ -216,7 +216,7 @@ items:[
 ['Bremsstrahlung','Das kontinuierliche Spektrum',`<p>Wenn ein Elektron im elektrischen Feld eines Atomkerns abgebremst wird, gibt es Energie als Photon ab. Weil es unterschiedlich stark abgebremst wird, entsteht ein <b>kontinuierliches Spektrum</b>.</p><div class="formula">E_max = e · U   →   225 kV ergibt max. 225 keV</div><p>Die meisten Photonen haben aber deutlich weniger Energie – der Mittelwert liegt grob bei einem Drittel bis der Hälfte von E_max (abhängig vom Filter).</p>`],
 ['Charakteristische Strahlung','Die scharfen „Spitzen“ im Spektrum',`<p>Schlägt ein Elektron ein Elektron aus der innersten Schale (K-Schale) des Anodenatoms heraus, fällt ein äußeres Elektron nach – dabei entsteht ein Photon mit genau festgelegter Energie.</p><div class="box"><div class="lbl">Wolfram</div>Kα ≈ 59 keV · Kβ ≈ 67 keV · erst sichtbar ab ca. <b>69,5 kV</b> Röhrenspannung (K-Kante).</div>`],
 ['kV oder mA – was macht was?','Härte vs. Menge',`<table class="t"><tr><th>Regler</th><th>Wirkung</th></tr><tr><td><b>Spannung (kV)</b></td><td>Höhere Photonenenergie → mehr Durchdringung, weniger Kontrast; außerdem mehr Intensität</td></tr><tr><td><b>Strom (mA / µA)</b></td><td>Nur mehr Photonen (helleres Bild, weniger Rauschen) – die Energie bleibt gleich</td></tr></table><div class="formula">Leistung P = U · I   (z. B. 200 kV · 0,1 mA = 20 W)</div><div class="box g"><div class="lbl">Praxis</div>Mehr Leistung = größerer Brennfleck = mehr Unschärfe. Bei Mikrofokusröhren begrenzt die Leistung daher die erreichbare Auflösung.</div>`],
-['Der Brennfleck','Warum klein so wichtig ist',`<p>Der Brennfleck ist die Fläche auf der Anode, von der die Strahlung ausgeht. Ist er groß, entsteht ein <b>Halbschatten</b> – die geometrische Unschärfe.</p><div class="formula">U_g = f · (M − 1)</div><p>Beispiel: Brennfleck f = 50 µm, Vergrößerung M = 5 → 200 µm Unschärfe am Detektor, das sind <b>40 µm im Bauteil</b>. Wer feine Poren sehen will, braucht einen kleinen Brennfleck.</p>`],
+['Der Brennfleck','Warum klein so wichtig ist',`<p>Der Brennfleck ist die Fläche auf der Anode, von der die Strahlung ausgeht. Ist er groß, entsteht ein <b>Halbschatten</b> – die geometrische Unschärfe.</p><div class="formula">U_g = f · (M − 1)</div><p>Beispiel: Brennfleck f = 50 µm, Vergrößerung M = 5 → 200 µm Unschärfe am Detektor, das sind <b>40 µm im Bauteil</b>. Wer feine Poren sehen will, braucht einen kleinen Brennfleck.</p><div class="box g"><div class="lbl">450-kV-Anlagen</div>Typische 450-kV-Röhren haben zwei Brennflecke, z. B. <b>0,4 mm</b> (bis ca. 700 W) und <b>1,0 mm</b> (bis ca. 1500 W). Der kleine Fokus ist schärfer, der große bringt mehr Leistung für dicke Bauteile wie Kurbelgehäuse. Die genauen Werte stehen im Datenblatt eurer Röhre.</div>`],
 ['Vorfilter','Weiche Strahlung herausfiltern',`<p>Ein dünnes Metallblech direkt vor der Röhre (z. B. <b>Kupfer, Zinn, Aluminium</b>) schluckt die energiearmen Photonen, die das Bauteil sowieso kaum durchdringen.</p><ul><li><b>Vorteil:</b> weniger Strahlaufhärtung (Cupping), gleichmäßigere Grauwerte</li><li><b>Nachteil:</b> weniger Intensität → längere Belichtung oder mehr Rauschen</li></ul><div class="box"><div class="lbl">Probier es aus</div>Oben im Live-Spektrum siehst du, wie der Filter die linke Seite des Spektrums „abschneidet“.</div>`]
 ]};
 
@@ -445,27 +445,24 @@ EXTRA.grundlagen=(ex)=>{
   <div class="sec fx" style="--i:3">Live · Röntgenspektrum</div>
   <div class="panel fx" style="--i:3"><h3>Spektrum einer Wolfram-Röhre</h3><div class="hint">Verändere Spannung, Strom und Vorfilter und beobachte das Spektrum (vereinfachtes Modell).</div>
    <canvas id="spc"></canvas><div class="pills" id="spp"></div>
-   <div class="ctl"><div><label>Spannung <b id="kvv"></b></label><input type="range" id="kv" min="40" max="225" value="160"></div>
-   <div><label>Strom <b id="mav"></b></label><input type="range" id="ma" min="1" max="10" value="5"></div>
-   <div><label>Vorfilter</label><div class="seg" id="flt"><button data-v="0" class="on">KEINER</button><button data-v="0.05">0,5 MM CU</button><button data-v="0.1">1 MM CU</button><button data-v="0.2">2 MM CU</button></div></div></div></div>`;
-  const c=document.getElementById('spc');let F=0;
+   <div class="ctl"><div><label>Brennfleck</label><div class="seg" id="foc"><button data-v="0.4" class="on">0,4 MM · MAX 700 W</button><button data-v="1.0">1,0 MM · MAX 1500 W</button></div></div>
+   <div><label>Spannung <b id="kvv"></b></label><input type="range" id="kv" min="40" max="450" value="225"></div>
+   <div><label>Strom <b id="mav"></b></label><input type="range" id="ma" min="1" max="40" value="15"></div>
+   <div><label>Vorfilter</label><div class="seg" id="flt"><button data-v="0" class="on">KEINER</button><button data-v="0.05">0,5 MM CU</button><button data-v="0.1">1 MM CU</button><button data-v="0.2">2 MM CU</button><button data-v="0.4">4 MM CU</button></div></div></div>
+   <div class="fb" id="spw" style="margin-top:12px"></div></div>`;
+  const c=document.getElementById('spc');let F=0,FOC=0.4;
   function draw(){
-    const kv=+document.getElementById('kv').value,ma=+document.getElementById('ma').value/10;
-    document.getElementById('kvv').textContent=kv+' kV';document.getElementById('mav').textContent=fmt(ma,1)+' mA';
+    const kv=+document.getElementById('kv').value;const Pmax=FOC<0.5?700:1500;
+    const maMax=Math.min(4,Pmax/kv);let ma=+document.getElementById('ma').value/10;const capped=ma>maMax;if(capped)ma=maMax;
+    document.getElementById('kvv').textContent=kv+' kV';document.getElementById('mav').textContent=fmt(ma,2)+' mA'+(capped?' (Grenze)':'');
     const [x,w,h]=cvs(c,230);const L=38,R=10,T=14,B=30,W=w-L-R,H=h-T-B;
     x.clearRect(0,0,w,h);grid(x,L,T,W,H,9,4);
-    const Emax=225;const pts=[];let sum=0,sumE=0,peak=0;
-    for(let E=5;E<=Emax;E+=0.5){
-      let I=E<kv?(kv-E)*ma:0;
-      const muAl=2.66*Math.pow(30/E,3)+0.39, muCu=100*Math.pow(30/E,3)+1.4;
-      I*=Math.exp(-muAl*0.2)*Math.exp(-muCu*F);
-      let lines=0;
-      if(kv>69.5){const k=Math.pow((kv-69.5)/100,1.5)*ma*60*Math.exp(-muCu*F)*Math.exp(-muAl*0.2);lines=k*Math.exp(-Math.pow((E-59.3)/0.9,2))+0.35*k*Math.exp(-Math.pow((E-67.2)/0.9,2));}
-      const tot=I+lines;pts.push([E,tot]);sum+=tot;sumE+=tot*E;
-    }
-    const ymax=200;
+    const Emax=450;const pts=[];let sum=0,sumE=0,peak=0;
+    const spec=(E,kv,ma)=>{let I=E<kv?(kv-E)*ma:0;const muAl=2.66*Math.pow(30/E,3)+0.39*Math.pow(100/E,0.35),muCu=100*Math.pow(30/E,3)+1.4*Math.pow(100/E,0.35);const att=Math.exp(-muAl*0.2)*Math.exp(-muCu*F);I*=att;if(kv>69.5){const k=Math.pow((kv-69.5)/100,1.2)*ma*60*att;I+=k*Math.exp(-Math.pow((E-59.3)/0.9,2))+0.35*k*Math.exp(-Math.pow((E-67.2)/0.9,2));}return I;};
+    let ymax=1;for(let E=5;E<=Emax;E+=1)ymax=Math.max(ymax,spec(E,kv,maMax));ymax*=1.12;
+    for(let E=5;E<=Emax;E+=0.5){const tot=spec(E,kv,ma);pts.push([E,tot]);sum+=tot;sumE+=tot*E;}
     x.fillStyle='#7f8b9c';x.font='500 10px "JetBrains Mono",monospace';x.textBaseline='top';
-    for(let i=0;i<=9;i++){const E=i*25;x.fillText(E,L+W*E/Emax-6,T+H+6);}
+    for(let i=0;i<=9;i++){const E=i*50;x.fillText(E,L+W*E/Emax-(E>=100?9:6),T+H+6);}
     x.fillText('keV',w-30,T+H+16);
     x.save();x.translate(10,T+H/2+30);x.rotate(-Math.PI/2);x.fillText('INTENSITÄT',0,0);x.restore();
     x.beginPath();x.moveTo(L,T+H);
@@ -475,13 +472,15 @@ EXTRA.grundlagen=(ex)=>{
     x.beginPath();pts.forEach(([E,I],i)=>{const X=L+W*E/Emax,Y=T+H-Math.min(I/ymax,1.05)*H;i?x.lineTo(X,Y):x.moveTo(X,Y);});
     x.strokeStyle=C.bl;x.lineWidth=2;x.shadowColor=C.bl;x.shadowBlur=8;x.stroke();x.shadowBlur=0;
     const Xk=L+W*kv/Emax;x.strokeStyle=C.rd;x.setLineDash([4,4]);x.beginPath();x.moveTo(Xk,T);x.lineTo(Xk,T+H);x.stroke();x.setLineDash([]);
-    pillC(x,'E_max '+kv+' keV',Xk-4,T+10,C.rd,'r');
+    pillC(x,'E_max '+kv+' keV',Xk<150?Xk+4:Xk-4,T+10,C.rd,Xk<150?'l':'r');
     if(kv>69.5){pillC(x,'Kα 59 keV',L+W*59.3/Emax+6,T+40,C.gd,'l');}
     const mean=sumE/sum;
-    document.getElementById('spp').innerHTML=`<span class="pill" style="--ac:${V.rd}">MAX ${kv} KEV</span><span class="pill" style="--ac:${V.gr}">MITTEL ≈ ${fmt(mean,0)} KEV</span><span class="pill" style="--ac:${V.gd}">LEISTUNG ${fmt(kv*ma,0)} W</span>`;
+    document.getElementById('spp').innerHTML=`<span class="pill" style="--ac:${V.rd}">MAX ${kv} KEV</span><span class="pill" style="--ac:${V.gr}">MITTEL ≈ ${fmt(mean,0)} KEV</span><span class="pill" style="--ac:${V.gd}">LEISTUNG ${fmt(kv*ma,0)} W</span><span class="pill" style="--ac:${V.li}">FOKUS ${fmt(FOC,1)} MM</span>`;
+    const u2=FOC*1000/2;document.getElementById('spw').innerHTML=(capped?`<b style="color:var(--rd)">Leistungsgrenze erreicht:</b> Mit ${fmt(FOC,1)} mm Brennfleck sind höchstens ${Pmax} W möglich – bei ${kv} kV also max. ${fmt(maMax,2)} mA. `+'<br>':'')+`<b style="color:var(--gd)">Unschärfe:</b> Bei Vergrößerung M = 2 macht der ${fmt(FOC,1)}-mm-Brennfleck etwa <b>${fmt(u2/1000,2)} mm</b> Unschärfe im Bauteil. ${FOC<0.5?'Kleiner Fokus = schärfer, aber weniger Leistung.':'Großer Fokus = mehr Leistung für dicke Bauteile, aber unschärfer.'}`;
   }
   ['kv','ma'].forEach(i=>document.getElementById(i).oninput=draw);
   document.querySelectorAll('#flt button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#flt button').forEach(q=>q.classList.remove('on'));b.classList.add('on');F=+b.dataset.v;draw();});
+  document.querySelectorAll('#foc button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#foc button').forEach(q=>q.classList.remove('on'));b.classList.add('on');FOC=+b.dataset.v;draw();});
   draw();window.onresize=()=>{if(document.getElementById('spc'))draw();};
 };
 
