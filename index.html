@@ -156,6 +156,26 @@ table.t td{padding:7px 6px;border-bottom:1px dashed var(--line);vertical-align:t
 .dose .b span{position:absolute;left:calc(100% + 6px);top:2px;white-space:nowrap}
 @keyframes grow{from{transform:scaleX(0)}}
 .fb{margin-top:10px;padding:11px 13px;border-radius:12px;font-size:14.5px;border:1px solid var(--line);background:var(--surf)}
+
+/* Helles Design */
+:root[data-theme=light]{--bg:#f2f5f9;--card:#ffffff;--surf:#eef2f7;--line:#d5dde7;--tx:#121a24;--mut:#5d6878;--gr:#0e9e6c;--rd:#d23f3b;--gd:#a87800;--bl:#2a72d8;--li:#7c4ddb;--or:#d06a0a}
+[data-theme=light] .bar{background:#dde4ec}
+[data-theme=light] .formula{background:#f6f8fb;color:#121a24}
+[data-theme=light] .in b{color:#000}
+[data-theme=light] .pill{background:#fff}
+[data-theme=light] .num-in{background:#fff;color:#121a24}
+[data-theme=light] .fact button{border-color:#e5d9b5}
+[data-theme=light] .item.done .num,[data-theme=light] .item.done .mark{border-color:#9fd9c2}
+[data-theme=light] .panel>canvas,[data-theme=light] .panel .svgfig{background:#0b1118;border-radius:12px}
+[data-theme=light] .tile{box-shadow:0 1px 3px rgba(15,25,40,.06)}
+[data-theme=light] .ihead small,[data-theme=light] .tile p{color:var(--mut)}
+html{transition:background .3s}
+body,.tile,.panel,.item,.box{transition:background-color .3s,border-color .3s,color .3s}
+/* Umschalter */
+.top{flex-wrap:wrap}
+.theme{display:inline-flex;background:var(--surf);border:1px solid var(--line);border-radius:12px;padding:3px;gap:2px}
+.theme button{font-family:"JetBrains Mono",monospace;font-weight:700;font-size:11px;letter-spacing:.06em;color:var(--mut);padding:6px 9px;border-radius:9px;white-space:nowrap}
+.theme button.on{background:var(--card);color:var(--ac);box-shadow:0 0 0 1px var(--ac) inset}
 footer{color:var(--mut);font-size:12px;text-align:center;margin-top:40px;font-family:"JetBrains Mono",monospace;letter-spacing:.08em}
 </style>
 </head>
@@ -165,6 +185,7 @@ footer{color:var(--mut);font-size:12px;text-align:center;margin-top:40px;font-fa
 <script>
 /* ============== Grunddaten ============== */
 const C={gr:'#1fcf8f',rd:'#f0605d',gd:'#f5c542',bl:'#4c9aff',li:'#b388ff',or:'#ff9f43'};
+const V={gr:'var(--gr)',rd:'var(--rd)',gd:'var(--gd)',bl:'var(--bl)',li:'var(--li)',or:'var(--or)'};
 const ICON={
  grundlagen:'<rect x="3" y="8" width="18" height="8" rx="4"/><path d="M7 12h3M14 10.5l2 1.5-2 1.5M11 16l-2 5M13.5 16l1 5M16 16l3 4"/>',
  wechsel:'<path d="M2 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0"/><path d="M20 5v14"/>',
@@ -180,7 +201,7 @@ const ICON={
 };
 const ico=(k)=>'<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">'+ICON[k]+'</svg>';
 
-let store={done:{},best:0};
+let store={done:{},best:0,theme:'auto'};
 try{const s=JSON.parse(localStorage.getItem('ctschule')||'null');if(s)store=Object.assign(store,s);}catch(e){}
 function save(){try{localStorage.setItem('ctschule',JSON.stringify(store));}catch(e){}}
 
@@ -291,7 +312,14 @@ let runId=0;
 const app=document.getElementById('app');
 function go(h){location.hash=h?h:'start';}
 window.addEventListener('hashchange',render);
-function setAc(c){document.documentElement.style.setProperty('--ac',C[c]||C.gr);}
+function setAc(c){document.documentElement.style.setProperty('--ac',V[c]||V.gr);}
+/* Hell / Dunkel / Auto */
+const mq=window.matchMedia?matchMedia('(prefers-color-scheme: light)'):null;
+function applyTheme(){const m=store.theme||'auto';const t=m==='auto'?(mq&&mq.matches?'light':'dark'):m;document.documentElement.dataset.theme=t;const mt=document.querySelector('meta[name=theme-color]');if(mt)mt.content=t==='light'?'#f2f5f9':'#05080d';document.querySelectorAll('.theme button').forEach(b=>b.classList.toggle('on',b.dataset.th===m));}
+function themeCtl(){return `<div class="theme" role="group" aria-label="Darstellung">${[['dark','☾ DUNKEL'],['light','☀ HELL'],['auto','◐ AUTO']].map(t=>`<button data-th="${t[0]}" class="${(store.theme||'auto')===t[0]?'on':''}">${t[1]}</button>`).join('')}</div>`;}
+document.addEventListener('click',e=>{const b=e.target.closest('.theme button');if(!b)return;store.theme=b.dataset.th;save();applyTheme();});
+if(mq){const f=()=>{if((store.theme||'auto')==='auto')applyTheme();};mq.addEventListener?mq.addEventListener('change',f):mq.addListener(f);}
+applyTheme();
 
 function progressOf(id){const s=S[id];if(!s.items.length)return null;let d=0;s.items.forEach((_,i)=>{if(store.done[id+'-'+i])d++});return [d,s.items.length];}
 function totalProgress(){let d=0,n=0;ORDER.forEach(id=>{const p=progressOf(id);if(p){d+=p[0];n+=p[1];}});return [d,n];}
@@ -308,7 +336,7 @@ function home(){
   setAc('gr');
   const [d,n]=totalProgress();const pct=Math.round(d/n*100);
   let fi=Math.floor(Math.random()*FACTS.length);
-  let html=`<div class="hero fx"><div class="top"><div class="sub"><span class="dot"></span>Lern-Terminal · Röntgen &amp; CT</div><div class="sub">${ORDER.length} BEREICHE</div></div>
+  let html=`<div class="hero fx"><div class="top"><div class="sub"><span class="dot"></span>Lern-Terminal · Röntgen &amp; CT</div>${themeCtl()}</div>
   <h1>Bayazit <span>CT-Schule</span></h1><p>Alles über Röntgentechnik und Computertomographie – von der Röhre bis zur Porositätsanalyse. Mit Animationen, Rechnern, Simulation und Quiz.</p></div>
   <div class="prog fx" style="--i:1"><div class="row"><span>LERNFORTSCHRITT</span><span><b>${d}</b> / ${n} LERNKARTEN · ${pct} %</span></div><div class="bar"><i style="width:${pct}%"></i></div></div>
   <div class="fact fx" style="--i:2"><div style="flex:1"><div class="lbl">⚡ Wusstest du?</div><p id="fact">${FACTS[fi]}</p></div><button id="nf">NÄCHSTE ›</button></div>
@@ -322,7 +350,7 @@ function home(){
     else if(id==='geschichte'){foot=`<span>${TL.length} MEILENSTEINE</span><div class="bar"><i style="width:100%"></i></div>`;}
     else foot=`<span>INTERAKTIV</span><div class="bar"><i style="width:100%"></i></div>`;
     if(id==='detektiv'){foot=`<span>${p[0]}/${p[1]} · SPIEL</span><div class="bar"><i style="width:${p[0]/p[1]*100}%"></i></div>`;}
-    html+=`<button class="tile fx ${WIDE[id]?'wide':''}" style="--i:${k+3};--ac:${C[s.c]}" onclick="go('${id}')">${ico(id)}<div class="tag">${s.tag}</div><h3>${s.t}</h3><p>${s.d}</p><div class="tfoot">${foot}<span class="arr">›</span></div></button>`;
+    html+=`<button class="tile fx ${WIDE[id]?'wide':''}" style="--i:${k+3};--ac:${V[s.c]}" onclick="go('${id}')">${ico(id)}<div class="tag">${s.tag}</div><h3>${s.t}</h3><p>${s.d}</p><div class="tfoot">${foot}<span class="arr">›</span></div></button>`;
   });
   html+=`</div><footer>BAYAZIT CT-SCHULE · LERNSTAND WIRD NUR IN DIESEM BROWSER GESPEICHERT</footer>`;
   app.innerHTML=html;
@@ -335,7 +363,7 @@ function page(id){
   const s=S[id];setAc(s.c);
   const p=progressOf(id);
   let meta=p?`${p[1]} LERNKARTEN · ${p[0]} ERLEDIGT`:s.tag;
-  let html=`<button class="back fx" onclick="go('')">‹ ZURÜCK</button>
+  let html=`<div class="top fx"><button class="back" onclick="go('')">‹ ZURÜCK</button>${themeCtl()}</div>
   <div class="phead fx" style="--i:1"><div class="sub" id="meta">${meta}</div><h2>${s.t}</h2><p>${s.d}</p></div>`;
   html+=`<div id="extra"></div>`;
   if(s.items.length){
@@ -351,7 +379,7 @@ function page(id){
     html+=`</div>`;
   }
   const idx=ORDER.indexOf(id);const nx=ORDER[(idx+1)%ORDER.length];
-  html+=`<div class="next"><button class="btn ghost" onclick="go('')">‹ Übersicht</button><button class="btn" style="--ac:${C[S[nx].c]}" onclick="go('${nx}')">Weiter: ${S[nx].t} ›</button></div>`;
+  html+=`<div class="next"><button class="btn ghost" onclick="go('')">‹ Übersicht</button><button class="btn" style="--ac:${V[S[nx].c]}" onclick="go('${nx}')">Weiter: ${S[nx].t} ›</button></div>`;
   app.innerHTML=html;
   app.querySelectorAll('.item').forEach(el=>{
     el.querySelector('.ihead').onclick=()=>el.classList.toggle('open');
@@ -450,7 +478,7 @@ EXTRA.grundlagen=(ex)=>{
     pillC(x,'E_max '+kv+' keV',Xk-4,T+10,C.rd,'r');
     if(kv>69.5){pillC(x,'Kα 59 keV',L+W*59.3/Emax+6,T+40,C.gd,'l');}
     const mean=sumE/sum;
-    document.getElementById('spp').innerHTML=`<span class="pill" style="--ac:${C.rd}">MAX ${kv} KEV</span><span class="pill" style="--ac:${C.gr}">MITTEL ≈ ${fmt(mean,0)} KEV</span><span class="pill" style="--ac:${C.gd}">LEISTUNG ${fmt(kv*ma,0)} W</span>`;
+    document.getElementById('spp').innerHTML=`<span class="pill" style="--ac:${V.rd}">MAX ${kv} KEV</span><span class="pill" style="--ac:${V.gr}">MITTEL ≈ ${fmt(mean,0)} KEV</span><span class="pill" style="--ac:${V.gd}">LEISTUNG ${fmt(kv*ma,0)} W</span>`;
   }
   ['kv','ma'].forEach(i=>document.getElementById(i).oninput=draw);
   document.querySelectorAll('#flt button').forEach(b=>b.onclick=()=>{document.querySelectorAll('#flt button').forEach(q=>q.classList.remove('on'));b.classList.add('on');F=+b.dataset.v;draw();});
@@ -573,7 +601,7 @@ EXTRA.ct=(ex)=>{
 /* ---- CT-Labor: Rekonstruktion ---- */
 EXTRA.labor=(ex)=>{
   ex.innerHTML=`<div class="panel fx" style="--i:2"><h3>Rekonstruiere einen Gussteil-Schnitt</h3><div class="hint">Links das echte Bauteil (mit Kanälen, Poren und einem Eisen-Einschluss), in der Mitte das Sinogramm, rechts deine Rekonstruktion. Drücke START.</div>
-  <div class="row3"><div class="cv"><canvas id="c0" width="128" height="128"></canvas><span class="cap" style="color:${C.gd}">ORIGINAL</span></div><div class="cv"><canvas id="c1" width="128" height="128"></canvas><span class="cap" style="color:${C.li}">SINOGRAMM</span></div><div class="cv"><canvas id="c2" width="128" height="128"></canvas><span class="cap" style="color:${C.gr}">ERGEBNIS</span></div></div>
+  <div class="row3"><div class="cv"><canvas id="c0" width="128" height="128"></canvas><span class="cap" style="color:${V.gd}">ORIGINAL</span></div><div class="cv"><canvas id="c1" width="128" height="128"></canvas><span class="cap" style="color:${V.li}">SINOGRAMM</span></div><div class="cv"><canvas id="c2" width="128" height="128"></canvas><span class="cap" style="color:${V.gr}">ERGEBNIS</span></div></div>
   <div class="pills" id="lp"></div>
   <div class="ctl"><div><label>Anzahl Projektionen</label><div class="seg" id="na"><button data-v="8">8</button><button data-v="24">24</button><button data-v="90">90</button><button data-v="180" class="on">180</button></div></div>
   <div><label>Rampenfilter</label><div class="seg" id="fi"><button data-v="1" class="on">FILTER AN (FBP)</button><button data-v="0">FILTER AUS</button></div></div>
@@ -610,7 +638,7 @@ EXTRA.labor=(ex)=>{
     const im=x2.createImageData(N,N);for(let k=0;k<N*N;k++){let v=(rec[k]-mn)/(mx-mn);v=Math.max(0,Math.min(1,v))*255;im.data[k*4]=v;im.data[k*4+1]=Math.min(255,v+4);im.data[k*4+2]=Math.min(255,v+10);im.data[k*4+3]=255;}x2.putImageData(im,0,0);
     // Linie im Original
     x0.putImageData(base,0,0);if(step<A&&step>0){const th=step*Math.PI/A;x0.strokeStyle=C.gd;x0.lineWidth=1.2;x0.shadowColor=C.gd;x0.shadowBlur=4;x0.beginPath();const c=Math.cos(th+Math.PI/2),s=Math.sin(th+Math.PI/2);x0.moveTo(64-c*90,64-s*90);x0.lineTo(64+c*90,64+s*90);x0.stroke();x0.shadowBlur=0;}}
-  function info(){document.getElementById('lp').innerHTML=`<span class="pill" style="--ac:${C.li}">WINKEL ${step}/${A}</span><span class="pill" style="--ac:${C.gr}">${filt?'FBP':'OHNE FILTER'}</span><span class="pill" style="--ac:${noise?C.rd:C.mut||'#7f8b9c'}">${noise?'RAUSCHEN AN':'OHNE RAUSCHEN'}</span>`;}
+  function info(){document.getElementById('lp').innerHTML=`<span class="pill" style="--ac:${V.li}">WINKEL ${step}/${A}</span><span class="pill" style="--ac:${V.gr}">${filt?'FBP':'OHNE FILTER'}</span><span class="pill" style="--ac:${noise?V.rd:'var(--mut)'}">${noise?'RAUSCHEN AN':'OHNE RAUSCHEN'}</span>`;}
   function loop(){if(my!==runId||!document.getElementById('c2'))return;if(running){const per=Math.max(1,Math.round(A/90));for(let k=0;k<per&&step<A;k++){back(step);step++;}show();info();if(step>=A){running=false;document.getElementById('go').textContent='▶ NOCHMAL';}}requestAnimationFrame(loop);}
   const goB=document.getElementById('go');
   goB.onclick=()=>{if(step>=A)prep();running=!running;goB.textContent=running?'❚❚ PAUSE':'▶ WEITER';};
@@ -639,7 +667,7 @@ EXTRA.industrie=(ex)=>{
     document.getElementById('o3').textContent=fmt(fov,0)+' mm';
     document.getElementById('o4').textContent=fmt(ug,1)+' µm';
     const minDef=vox*3/1000;
-    document.getElementById('o5').innerHTML=`<b style="color:${C.gd}">Faustregel:</b> Poren ab ca. <b>${fmt(minDef,2)} mm</b> (≈ 3 Voxel) sind sicher erkennbar. ${ug>vox?`<span style="color:${C.rd}">Achtung: Die Brennfleck-Unschärfe ist größer als ein Voxel – kleinere Voxel bringen hier keine echte Auflösung.</span>`:`<span style="color:${C.gr}">Brennfleck-Unschärfe ist kleiner als ein Voxel – passt.</span>`}`;
+    document.getElementById('o5').innerHTML=`<b style="color:${V.gd}">Faustregel:</b> Poren ab ca. <b>${fmt(minDef,2)} mm</b> (≈ 3 Voxel) sind sicher erkennbar. ${ug>vox?`<span style="color:${V.rd}">Achtung: Die Brennfleck-Unschärfe ist größer als ein Voxel – kleinere Voxel bringen hier keine echte Auflösung.</span>`:`<span style="color:${V.gr}">Brennfleck-Unschärfe ist kleiner als ein Voxel – passt.</span>`}`;
     const W=360,H=170,sx=24,dx=330;const ox=sx+(dx-sx)*fod/fdd;const dh=120;const oh=Math.max(12,dh*0.55/M*1.8);
     const objR=Math.min(30,(fov/2)/(fdd)*(dx-sx)*M/ M*0+ oh/2);
     document.getElementById('geo').innerHTML=`<svg class="svgfig" viewBox="0 0 ${W} ${H}">
@@ -661,12 +689,12 @@ EXTRA.industrie=(ex)=>{
 
 /* ---- Fehler-Detektiv: Spiel ---- */
 EXTRA.detektiv=(ex)=>{
-  const K=[['GAS','Gaspore',C.bl],['LUNKER','Schwindungslunker',C.or],['EINSCHLUSS','Dichter Einschluss',C.gd],['KERN','Kernbruch',C.li]];
+  const K=[['GAS','Gaspore',V.bl],['LUNKER','Schwindungslunker',V.or],['EINSCHLUSS','Dichter Einschluss',V.gd],['KERN','Kernbruch',V.li]];
   const EXPL={GAS:'Rund, glatte Wände, scharf begrenzt – typisch für eingeschlossenes Gas.',LUNKER:'Zerklüftet und schwammartig – entsteht bei der Erstarrung an Materialanhäufungen.',EINSCHLUSS:'Heller als Aluminium = höhere Dichte, z. B. ein Eisenpartikel.',KERN:'Im Kanal liegt Material – der Sandkern ist gebrochen und Metall ist hineingeflossen.'};
   let score=0,total=0,streak=0,cur=null;
   ex.innerHTML=`<div class="sec fx" style="--i:2">Spiel · Erkenne den Fehler</div>
   <div class="panel fx" style="--i:2"><div class="pills" id="sc"></div>
-  <div class="cv" style="max-width:420px;margin:0 auto"><span class="lbl pill" style="--ac:${C.rd}">CT-SCHNITT · ALSI-GUSS</span><canvas id="dg" width="220" height="220" style="image-rendering:auto"></canvas></div>
+  <div class="cv" style="max-width:420px;margin:0 auto"><span class="lbl pill" style="--ac:${V.rd}">CT-SCHNITT · ALSI-GUSS</span><canvas id="dg" width="220" height="220" style="image-rendering:auto"></canvas></div>
   <div class="hint" style="text-align:center;margin:10px 0">Welcher Fehler ist in diesem Schnitt versteckt?<br><span style="font-size:12.5px">Hinweis: Die zwei großen Öffnungen sind gewollte Kanäle (Sandkerne, z. B. Wassermantel).</span></div>
   <div class="row2" id="ans" style="grid-template-columns:1fr 1fr">${K.map(k=>`<button class="qopt" data-k="${k[0]}" style="text-align:center;font-family:'JetBrains Mono',monospace;font-weight:700;color:${k[2]}">${k[1].toUpperCase()}</button>`).join('')}</div>
   <div id="dfb"></div></div>`;
@@ -693,13 +721,13 @@ EXTRA.detektiv=(ex)=>{
     document.querySelectorAll('#ans .qopt').forEach(b=>{b.classList.remove('ok','no');b.disabled=false;});
     sc();
   }
-  function sc(){document.getElementById('sc').innerHTML=`<span class="pill" style="--ac:${C.gr}">RICHTIG ${score}/${total}</span><span class="pill" style="--ac:${C.gd}">SERIE ${streak}</span>`;}
+  function sc(){document.getElementById('sc').innerHTML=`<span class="pill" style="--ac:${V.gr}">RICHTIG ${score}/${total}</span><span class="pill" style="--ac:${V.gd}">SERIE ${streak}</span>`;}
   document.querySelectorAll('#ans .qopt').forEach(b=>b.onclick=()=>{
     if(b.disabled)return;const ok=b.dataset.k===cur;total++;if(ok){score++;streak++;}else streak=0;
     document.querySelectorAll('#ans .qopt').forEach(q=>{q.disabled=true;if(q.dataset.k===cur)q.classList.add('ok');});
     if(!ok)b.classList.add('no');
     const name=K.find(k=>k[0]===cur)[1];
-    document.getElementById('dfb').innerHTML=`<div class="fb" style="border-color:${ok?C.gr:C.rd}"><b style="color:${ok?C.gr:C.rd}">${ok?'✓ RICHTIG!':'✗ LEIDER FALSCH'}</b> – Es war: <b>${name}</b>. ${EXPL[cur]}</div><button class="btn" style="margin-top:10px;width:100%" id="nx">NÄCHSTES BILD ›</button>`;
+    document.getElementById('dfb').innerHTML=`<div class="fb" style="border-color:${ok?V.gr:V.rd}"><b style="color:${ok?V.gr:V.rd}">${ok?'✓ RICHTIG!':'✗ LEIDER FALSCH'}</b> – Es war: <b>${name}</b>. ${EXPL[cur]}</div><button class="btn" style="margin-top:10px;width:100%" id="nx">NÄCHSTES BILD ›</button>`;
     document.getElementById('nx').onclick=gen;sc();
   });
   gen();
@@ -715,7 +743,7 @@ EXTRA.schutz=(ex)=>{
   <div class="kv"><div><span>Dosisleistung</span><b id="ar"></b></div><div><span>Faktor</span><b id="af"></b></div></div></div>
   <div class="sec fx" style="--i:3">Vergleich · Typische Dosiswerte</div>
   <div class="panel fx" style="--i:3"><h3>Effektive Dosis im Vergleich</h3><div class="hint">Angaben in Millisievert (mSv), logarithmische Skala. Typische Richtwerte (Quelle u. a. Bundesamt für Strahlenschutz) – Einzelwerte schwanken je nach Gerät und Person.</div>
-  ${D.map((d,i)=>`<div class="dose"><span style="color:var(--mut)">${d[0]}</span><div><div class="b" style="width:${Math.max(4,lg(d[1])*78)}%;--ac:${d[0].includes('Grenzwert')?C.rd:d[1]>5?C.or:C.gd};background:var(--ac);animation-delay:${i*90}ms"><span class="pill" style="--ac:${d[0].includes('Grenzwert')?C.rd:d[1]>5?C.or:C.gd}">${fmt(d[1],d[1]<0.1?2:1)} mSv</span></div></div></div>`).join('')}
+  ${D.map((d,i)=>`<div class="dose"><span style="color:var(--mut)">${d[0]}</span><div><div class="b" style="width:${Math.max(4,lg(d[1])*78)}%;--ac:${d[0].includes('Grenzwert')?V.rd:d[1]>5?V.or:V.gd};background:var(--ac);animation-delay:${i*90}ms"><span class="pill" style="--ac:${d[0].includes('Grenzwert')?V.rd:d[1]>5?V.or:V.gd}">${fmt(d[1],d[1]<0.1?2:1)} mSv</span></div></div></div>`).join('')}
   </div>`;
   const c=document.getElementById('aq');
   function draw(){const r=+document.getElementById('ab').value/100;const D=100/(r*r);
@@ -734,22 +762,22 @@ EXTRA.schutz=(ex)=>{
 
 /* ---- Geschichte ---- */
 const TL=[
-['1895','Entdeckung','Wilhelm Conrad Röntgen entdeckt am 8. November in Würzburg die „X-Strahlen“.',C.li],
-['1896','Erste Anwendungen','Wenige Wochen nach der Veröffentlichung werden weltweit Knochenbrüche geröntgt.',C.li],
-['1901','Nobelpreis','Röntgen erhält den allerersten Nobelpreis für Physik.',C.gd],
-['1913','Coolidge-Röhre','William Coolidge erfindet die Glühkathodenröhre – Grundlage aller heutigen Röhren.',C.bl],
-['1917','Radon-Transformation','Johann Radon beschreibt die Mathematik, mit der man aus Projektionen ein Bild berechnet.',C.bl],
-['1963','Cormack','Allan Cormack veröffentlicht theoretische Grundlagen der Rekonstruktion.',C.bl],
-['1971','Erster CT-Scan','Godfrey Hounsfield (EMI) scannt in London den ersten Patienten – einen Kopf.',C.gr],
-['1979','Nobelpreis Medizin','Hounsfield und Cormack erhalten den Nobelpreis für die Computertomographie.',C.gd],
-['1984','Feldkamp-Algorithmus','Feldkamp, Davis und Kress veröffentlichen die Kegelstrahl-Rekonstruktion (FDK).',C.gr],
-['1989','Spiral-CT','Willi Kalender stellt die Spiral-CT vor – kontinuierlicher Vorschub statt Schicht für Schicht.',C.gr],
-['1990er','Industrie-CT','Flachdetektoren und schnellere Rechner bringen die CT in die Werkstoffprüfung und Messtechnik.',C.or],
-['1997','Volume Graphics','In Heidelberg wird Volume Graphics gegründet – Hersteller von VGStudio MAX.',C.or],
-['2000er','Mikro-CT & Messtechnik','CT wird zum Messgerät: Soll-Ist-Vergleich und Wanddicke direkt am Volumen.',C.or],
-['2010er','Inline-CT','Gießereien setzen CT in der Linie ein – Bauteile werden im Takt geprüft.',C.rd],
-['2021','Photonenzählende CT','Die erste photonenzählende CT kommt in die Klinik: Detektoren messen jedes Photon einzeln mit Energie.',C.rd],
-['Heute','KI in der Auswertung','Künstliche Intelligenz hilft, Defekte schneller zu finden und Rauschen zu reduzieren.',C.gr]
+['1895','Entdeckung','Wilhelm Conrad Röntgen entdeckt am 8. November in Würzburg die „X-Strahlen“.',V.li],
+['1896','Erste Anwendungen','Wenige Wochen nach der Veröffentlichung werden weltweit Knochenbrüche geröntgt.',V.li],
+['1901','Nobelpreis','Röntgen erhält den allerersten Nobelpreis für Physik.',V.gd],
+['1913','Coolidge-Röhre','William Coolidge erfindet die Glühkathodenröhre – Grundlage aller heutigen Röhren.',V.bl],
+['1917','Radon-Transformation','Johann Radon beschreibt die Mathematik, mit der man aus Projektionen ein Bild berechnet.',V.bl],
+['1963','Cormack','Allan Cormack veröffentlicht theoretische Grundlagen der Rekonstruktion.',V.bl],
+['1971','Erster CT-Scan','Godfrey Hounsfield (EMI) scannt in London den ersten Patienten – einen Kopf.',V.gr],
+['1979','Nobelpreis Medizin','Hounsfield und Cormack erhalten den Nobelpreis für die Computertomographie.',V.gd],
+['1984','Feldkamp-Algorithmus','Feldkamp, Davis und Kress veröffentlichen die Kegelstrahl-Rekonstruktion (FDK).',V.gr],
+['1989','Spiral-CT','Willi Kalender stellt die Spiral-CT vor – kontinuierlicher Vorschub statt Schicht für Schicht.',V.gr],
+['1990er','Industrie-CT','Flachdetektoren und schnellere Rechner bringen die CT in die Werkstoffprüfung und Messtechnik.',V.or],
+['1997','Volume Graphics','In Heidelberg wird Volume Graphics gegründet – Hersteller von VGStudio MAX.',V.or],
+['2000er','Mikro-CT & Messtechnik','CT wird zum Messgerät: Soll-Ist-Vergleich und Wanddicke direkt am Volumen.',V.or],
+['2010er','Inline-CT','Gießereien setzen CT in der Linie ein – Bauteile werden im Takt geprüft.',V.rd],
+['2021','Photonenzählende CT','Die erste photonenzählende CT kommt in die Klinik: Detektoren messen jedes Photon einzeln mit Energie.',V.rd],
+['Heute','KI in der Auswertung','Künstliche Intelligenz hilft, Defekte schneller zu finden und Rauschen zu reduzieren.',V.gr]
 ];
 EXTRA.geschichte=(ex)=>{ex.innerHTML=`<div class="tl">${TL.map((t,i)=>`<div class="tli fx" style="--i:${i+2};--ac:${t[3]}"><div class="y">${t[0]}</div><b>${t[1]}</b><p>${t[2]}</p></div>`).join('')}</div>`;};
 
@@ -783,17 +811,17 @@ EXTRA.quiz=(ex)=>{
   function start(){qs=QZ.slice().sort(()=>Math.random()-.5).slice(0,10);i=0;pts=0;show();}
   function show(){
     if(i>=10){if(pts>store.best){store.best=pts;save();}
-      const col=pts>=8?C.gr:pts>=5?C.gd:C.rd;
-      ex.innerHTML=`<div class="panel fx" style="text-align:center;padding:28px 16px"><div class="sub">ERGEBNIS</div><div class="mono" style="font-size:56px;font-weight:800;color:${col};text-shadow:0 0 30px ${col}">${pts}/10</div><p style="color:var(--mut);margin:6px 0 16px">${pts>=8?'Stark! Du bist ein echter CT-Profi.':pts>=5?'Gut! Ein paar Lernkarten noch einmal ansehen.':'Kein Problem – die Lernkarten helfen dir weiter.'}</p><div class="pills" style="justify-content:center"><span class="pill" style="--ac:${C.gd}">BESTWERT ${store.best}/10</span></div><button class="btn" id="again" style="margin-top:14px">↺ NEUE RUNDE</button></div>`;
+      const col=pts>=8?V.gr:pts>=5?V.gd:V.rd;
+      ex.innerHTML=`<div class="panel fx" style="text-align:center;padding:28px 16px"><div class="sub">ERGEBNIS</div><div class="mono" style="font-size:56px;font-weight:800;color:${col};text-shadow:0 0 30px ${col}">${pts}/10</div><p style="color:var(--mut);margin:6px 0 16px">${pts>=8?'Stark! Du bist ein echter CT-Profi.':pts>=5?'Gut! Ein paar Lernkarten noch einmal ansehen.':'Kein Problem – die Lernkarten helfen dir weiter.'}</p><div class="pills" style="justify-content:center"><span class="pill" style="--ac:${V.gd}">BESTWERT ${store.best}/10</span></div><button class="btn" id="again" style="margin-top:14px">↺ NEUE RUNDE</button></div>`;
       document.getElementById('again').onclick=start;return;}
     const q=qs[i];
-    ex.innerHTML=`<div class="panel fx"><div class="row" style="display:flex;justify-content:space-between" class="sub"><span class="sub">FRAGE ${i+1} / 10</span><span class="sub" style="color:${C.gr}">${pts} PUNKTE</span></div><div class="bar" style="margin:8px 0 16px"><i style="width:${i*10}%"></i></div>
+    ex.innerHTML=`<div class="panel fx"><div class="row" style="display:flex;justify-content:space-between" class="sub"><span class="sub">FRAGE ${i+1} / 10</span><span class="sub" style="color:${V.gr}">${pts} PUNKTE</span></div><div class="bar" style="margin:8px 0 16px"><i style="width:${i*10}%"></i></div>
     <h3 style="font-family:Inter;text-transform:none;letter-spacing:0;font-size:18px;color:var(--tx);margin-bottom:14px;font-weight:700">${q[0]}</h3>
     ${q[1].map((o,k)=>`<button class="qopt" data-k="${k}"><span class="mono" style="color:var(--ac);font-weight:800;margin-right:8px">${'ABCD'[k]}</span>${o}</button>`).join('')}<div id="qf"></div></div>`;
     ex.querySelectorAll('.qopt').forEach(b=>b.onclick=()=>{
       if(ex.querySelector('.qopt.ok'))return;const k=+b.dataset.k;const ok=k===q[2];if(ok)pts++;
       ex.querySelectorAll('.qopt')[q[2]].classList.add('ok');if(!ok)b.classList.add('no');
-      document.getElementById('qf').innerHTML=`<div class="fb" style="border-color:${ok?C.gr:C.rd}"><b style="color:${ok?C.gr:C.rd}">${ok?'✓ RICHTIG':'✗ FALSCH'}</b> – ${q[3]}</div><button class="btn" style="margin-top:10px;width:100%" id="qn">${i<9?'NÄCHSTE FRAGE ›':'ERGEBNIS ANZEIGEN ›'}</button>`;
+      document.getElementById('qf').innerHTML=`<div class="fb" style="border-color:${ok?V.gr:V.rd}"><b style="color:${ok?V.gr:V.rd}">${ok?'✓ RICHTIG':'✗ FALSCH'}</b> – ${q[3]}</div><button class="btn" style="margin-top:10px;width:100%" id="qn">${i<9?'NÄCHSTE FRAGE ›':'ERGEBNIS ANZEIGEN ›'}</button>`;
       document.getElementById('qn').onclick=()=>{i++;show();};
     });
   }
